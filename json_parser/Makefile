@@ -11,7 +11,7 @@ run: $(VENV)/bin/activate
 	$(PYTHON) main.py
 
 test: $(VENV)/bin/activate
-	$(PYTHON) -m unittest tests/*.py
+	$(PYTHON) -m unittest discover tests
 
 $(VENV)/bin/activate: $(REQUIREMENTS)
 	python3 -m venv $(VENV)
