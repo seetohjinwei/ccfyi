@@ -29,7 +29,7 @@ class Str:
 
         ret = self.clone()
         ret.lo = self.lo + lo
-        ret.hi = self.lo + hi
+        ret.hi = min(ret.lo + hi, len(self))
         return ret
 
     def at(self, index: int) -> str:
@@ -58,6 +58,10 @@ class Str:
         return True
 
     def __str__(self) -> str:
+        s = self.s[self.lo:self.hi]
+        return s
+
+    def __repr__(self) -> str:
         s = self.s[self.lo:self.hi]
         return f"\"{s}\""
 

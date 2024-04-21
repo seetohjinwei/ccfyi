@@ -6,8 +6,8 @@ from dataclasses import dataclass
 
 @dataclass
 class StateTransitionResult:
-    next_state: "State | None"
-    txt: Str
+    is_success: bool
+    new_txt: Str
     json_struct: JSONStruct
 
 
@@ -51,13 +51,13 @@ class InitialState(State):
 
         for state in states:
             res = state.transition(txt)
-            if res.next_state:
+            if res.is_success:
                 return res
 
         # does not match any of the states
         return StateTransitionResult(
-            next_state=None,
-            txt=txt,
+            is_success=False,
+            new_txt=txt,
             json_struct=None,
         )
 
@@ -75,7 +75,81 @@ class ValueState(State):
 
 
 class StringState(State):
-    pass
+    @staticmethod
+    def transition(txt: Str) -> StateTransitionResult:
+        control_characters: list[str] = []  # ignore control characters
+        escape_characters: dict[str, str] = {
+            '"': '"',  # quotation mark
+            "\\": "\\",  # reverse solidus
+            "/": "/",  # solidus
+            "b": "\b",  # backspace
+            "f": "\f",  # formfeed
+            "n": "\n",  # linefeed
+            "r": "\r",  # carriage return
+            "t": "\t",  # horizontal tab
+            # \u hex digits is handled separately
+        }
+
+        failed_result = StateTransitionResult(
+            is_success=False,
+            new_txt=txt,
+            json_struct=None,
+        )
+
+        if len(txt) == 0 or txt.at(0) != '"':
+            # not string
+            return failed_result
+
+        str_builder: list[str] = []
+
+        # do custom iterator
+        it = 1
+        end = len(txt)
+        while it < end:
+            c = txt.at(it)
+
+            if c == '"':
+                # reached the end
+
+                new_txt = txt.substring(it + 1)
+                json_struct = "".join(str_builder)
+
+                return StateTransitionResult(
+                    is_success=True,
+                    new_txt=new_txt,
+                    json_struct=json_struct,
+                )
+            elif c == "\\":
+                # escape character
+
+                # increment iterator
+                it += 1
+                if not (it < end):
+                    # unexpected end
+                    return failed_result
+                c = txt.at(it)
+                if c == "u":
+                    # special escape character (hex digits for unicode)
+                    digits = txt.substring(it, 4)
+                    ch = chr(int(str(digits), 16))
+                    str_builder.append(ch)
+                    it += 3
+                    continue
+                if c not in escape_characters:
+                    # invalid escape character
+                    return failed_result
+                ch = escape_characters[c]
+                str_builder.append(ch)
+
+            elif c in control_characters:
+                pass
+            else:
+                str_builder.append(c)
+
+            it += 1
+
+        # did not find an end
+        return failed_result
 
 
 class NumberState(State):
@@ -92,22 +166,26 @@ class WhitespaceState(State):
             "\t",  # horizontal tab
         ]
 
-        for i, c in enumerate(txt):
-            if c in whitespace_chars:
-                continue
-
-            # lo is the first non-whitespace character
-            lo = i
-            txt = txt.substring(lo)
-
+        if len(txt) == 0 or txt.at(0) not in whitespace_chars:
+            # not whitespace
             return StateTransitionResult(
-                next_state=None,
-                txt=txt,
+                is_success=False,
+                new_txt=txt,
                 json_struct=None,
             )
 
+        lo = 0
+        for i, c in enumerate(txt):
+            lo = i
+            if c in whitespace_chars:
+                continue
+            break
+
+        # lo is the first non-whitespace character
+        new_txt = txt.substring(lo)
+
         return StateTransitionResult(
-            next_state=None,
-            txt=txt,
+            is_success=True,
+            new_txt=new_txt,
             json_struct=None,
         )
