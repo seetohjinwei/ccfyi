@@ -24,7 +24,7 @@ class TestJSONStruct(unittest.TestCase):
     def test_unittest(self):
         self.assertEqual(1, 1)
 
-    def test_invalid_json(self):
+    def test_invalid_json_1(self):
         tc: TestCase[JSONStruct] = TestCase(
                 name="invalid_json",
                 path="step1/invalid.json",
@@ -37,11 +37,67 @@ class TestJSONStruct(unittest.TestCase):
             result, tc.expected, f"expected {tc.expected}, but got {result}"
         )
 
-    def test_valid_json(self):
+    def test_valid_json_1(self):
         tc: TestCase[JSONStruct] = TestCase(
                 name="valid_json",
                 path="step1/valid.json",
                 expected={},
+            )
+
+        txt = get_test_case(tc.path)
+        result = parse(txt)
+        self.assertEqual(
+            result, tc.expected, f"expected {tc.expected}, but got {result}"
+        )
+
+    def test_invalid_json_2_0(self):
+        self.skipTest("TODO")
+        tc: TestCase[JSONStruct] = TestCase(
+                name="valid_json",
+                path="step2/invalid.json",
+                expected=None,
+            )
+
+        txt = get_test_case(tc.path)
+        result = parse(txt)
+        self.assertEqual(
+            result, tc.expected, f"expected {tc.expected}, but got {result}"
+        )
+
+    def test_invalid_json_2_1(self):
+        self.skipTest("TODO")
+        tc: TestCase[JSONStruct] = TestCase(
+                name="valid_json",
+                path="step2/invalid2.json",
+                expected=None,
+            )
+
+        txt = get_test_case(tc.path)
+        result = parse(txt)
+        self.assertEqual(
+            result, tc.expected, f"expected {tc.expected}, but got {result}"
+        )
+
+    def test_valid_json_2_0(self):
+        self.skipTest("TODO")
+        tc: TestCase[JSONStruct] = TestCase(
+                name="valid_json",
+                path="step2/valid.json",
+                expected={"key": "value"},
+            )
+
+        txt = get_test_case(tc.path)
+        result = parse(txt)
+        self.assertEqual(
+            result, tc.expected, f"expected {tc.expected}, but got {result}"
+        )
+
+    def test_valid_json_2_1(self):
+        self.skipTest("TODO")
+        tc: TestCase[JSONStruct] = TestCase(
+                name="valid_json",
+                path="step2/valid2.json",
+                expected={"key": "value", "key2": "value"},
             )
 
         txt = get_test_case(tc.path)
