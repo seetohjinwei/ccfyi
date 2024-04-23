@@ -8,10 +8,15 @@ PIP=$(VENV)/bin/pip
 all: run
 
 run: $(VENV)/bin/activate
-	$(PYTHON) main.py
+	@$(PYTHON) main.py
 
 test: $(VENV)/bin/activate
-	$(PYTHON) -m unittest discover tests
+	@if [ -z "$(test)" ]; then \
+		$(PYTHON) -m unittest discover tests; \
+	else \
+		$(PYTHON) -m unittest $(test); \
+	fi
+	
 
 $(VENV)/bin/activate: $(REQUIREMENTS)
 	python3 -m venv $(VENV)

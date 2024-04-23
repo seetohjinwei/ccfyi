@@ -1,5 +1,7 @@
 from src.str_slice import Str
-from src.states import StateTransitionResult, StringState, WhitespaceState
+from src.states.state import StateTransitionResult
+from src.states.string_state import StringState
+from src.states.whitespace_state import WhitespaceState
 import unittest
 
 
@@ -17,6 +19,7 @@ def assert_equal_result(t: unittest.TestCase, actual: StateTransitionResult, exp
 
 class TestStringState(unittest.TestCase):
     def test_basic_string(self):
+
         actual = StringState.transition(Str("\"123\""))
         expected = StateTransitionResult(
             is_success=True,

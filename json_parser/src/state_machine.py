@@ -1,4 +1,4 @@
-from .states import InitialState, State
+from .states.state import State
 from .str_slice import Str
 
 
@@ -8,7 +8,7 @@ class StateMachine:
 
     def __init__(self, txt: str):
         self.txt = Str(txt)
-        self.state = InitialState()
+        # self.state = InitialState()
 
     def transition(self):
         pass

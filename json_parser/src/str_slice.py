@@ -24,12 +24,10 @@ class Str:
         return ret
 
     def substring(self, lo: int = 0, hi: int | None = None) -> "Str":
-        if hi is None:
-            hi = len(self)
-
         ret = self.clone()
         ret.lo = self.lo + lo
-        ret.hi = min(ret.lo + hi, len(self))
+        if hi is not None:
+            ret.hi = self.lo + hi
         return ret
 
     def at(self, index: int) -> str:

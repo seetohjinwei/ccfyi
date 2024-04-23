@@ -20,3 +20,10 @@ class TestStrSlice(unittest.TestCase):
         for actual, _ in enumerate(s):
             self.assertEqual(actual, expected)
             expected += 1
+
+    def test_substring(self):
+        s = Str("abcde")
+
+        expected = Str("de")
+        actual = s.substring(1).substring(1).substring(1)
+        self.assertEqual(actual, expected)
