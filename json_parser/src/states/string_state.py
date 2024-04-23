@@ -1,6 +1,11 @@
-from .state import State, StateTransitionResult
-from .common import AttemptResult, AttemptResultAction, attempt_states, get_failed_result
 from ..str_slice import Str
+from .common import (
+    AttemptResult,
+    AttemptResultAction,
+    attempt_states,
+    get_failed_result,
+)
+from .state import State, StateTransitionResult
 
 
 control_characters: list[str] = []  # ignore control characters
@@ -53,7 +58,6 @@ class _StringConsumeState(State):
     @staticmethod
     def transition(txt: Str) -> StateTransitionResult:
         if len(txt) == 0:
-            # not escape character
             return get_failed_result(txt)
 
         json_struct = txt.at(0)
@@ -114,14 +118,19 @@ class _StringEscapeState(State):
         # consume the escape character
         txt = txt.substring(1)
 
-        result = attempt_states(txt, [
-            (_StringEscapeUnicodeState, attempt),
-            (_StringEscapeRegularState, attempt),
-        ])
+        result = attempt_states(
+            txt,
+            [
+                (_StringEscapeUnicodeState, attempt),
+                (_StringEscapeRegularState, attempt),
+            ],
+        )
 
         match result:
             case AttemptResult(action=AttemptResultAction.RETURN):
                 return result.get()
+            case AttemptResult(action=AttemptResultAction.NO_MATCH):
+                return get_failed_result(txt)
         return get_failed_result(txt)
 
 
@@ -147,12 +156,11 @@ class StringState(State):
         while len(txt) > 0:
 
             def attempt_close_quotes(result: StateTransitionResult) -> AttemptResult:
-                new_txt = txt.substring(1)
                 json_struct = "".join(str_builder)
 
                 result = StateTransitionResult(
                     is_success=True,
-                    new_txt=new_txt,
+                    new_txt=result.new_txt,
                     json_struct=json_struct,
                 )
                 return AttemptResult(AttemptResultAction.RETURN, result)
@@ -162,15 +170,20 @@ class StringState(State):
                 str_builder.append(result.json_struct)
                 return AttemptResult(AttemptResultAction.PASS, result)
 
-            result = attempt_states(txt, [
-                (_StringCloseQuotesState, attempt_close_quotes),
-                (_StringEscapeState, attempt),
-                (_StringConsumeState, attempt),
-                (_StringControlState, attempt),
-            ])
+            result = attempt_states(
+                txt,
+                [
+                    (_StringCloseQuotesState, attempt_close_quotes),
+                    (_StringEscapeState, attempt),
+                    (_StringConsumeState, attempt),
+                    (_StringControlState, attempt),
+                ],
+            )
             match result:
                 case AttemptResult(action=AttemptResultAction.RETURN):
                     return result.get()
+                case AttemptResult(action=AttemptResultAction.NO_MATCH):
+                    return failed_result
                 case AttemptResult(action=AttemptResultAction.PASS):
                     pass
             txt = result.new_txt

@@ -21,11 +21,15 @@ def get_no_result() -> StateTransitionResult:
 class AttemptResultAction(Enum):
     UNDEFINED = auto()
     NO_MATCH = auto()
-    FAIL = auto()
+
+    VALUE = auto()  # the value is important
+
+    # control actions
+    FAIL = auto()  # should fail the entire operation
     RETURN = auto()
     BREAK = auto()
     CONTINUE = auto()
-    PASS = auto()
+    PASS = auto()  # no operation
 
 
 @dataclass
@@ -40,10 +44,6 @@ class AttemptResult:
         self.result = result
 
     def get(self) -> StateTransitionResult:
-        # for the type checker
-        assert self.action == AttemptResultAction.RETURN
-        assert self.result is not None
-
         return self.result
 
 
