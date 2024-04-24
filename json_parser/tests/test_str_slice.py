@@ -27,3 +27,27 @@ class TestStrSlice(unittest.TestCase):
         expected = Str("de")
         actual = s.substring(1).substring(1).substring(1)
         self.assertEqual(actual, expected)
+
+    def test_startswith1(self):
+        s = Str("abcde")
+
+        actual = s.startswith("ab")
+        self.assertTrue(actual)
+
+    def test_startswith2(self):
+        s = Str("bacde")
+
+        actual = s.startswith("ab")
+        self.assertFalse(actual)
+
+    def test_startswith3(self):
+        s = Str("abcde")
+
+        actual = s.startswith(Str("ab"))
+        self.assertTrue(actual)
+
+    def test_startswith4(self):
+        s = Str("bacde")
+
+        actual = s.startswith(Str("ab"))
+        self.assertFalse(actual)

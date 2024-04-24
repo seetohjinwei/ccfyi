@@ -36,6 +36,22 @@ class Str:
 
         return self.s[self.lo + index]
 
+    def startswith(self, s: "Str | str") -> bool:
+        length = len(s)
+        if len(self) < length:
+            return False
+
+        it = 0
+        while it < length:
+            if self[it] != s[it]:
+                return False
+            it += 1
+
+        return True
+
+    def __getitem__(self, index: int) -> str:
+        return self.at(index)
+
     def __len__(self) -> int:
         return self.hi - self.lo
 
