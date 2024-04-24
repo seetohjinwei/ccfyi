@@ -20,6 +20,9 @@ def assert_equal_result(
         expected.json_struct, list
     ):
         t.assertListEqual(actual.json_struct, expected.json_struct)
+    elif isinstance(actual.json_struct, float) and isinstance(expected.json_struct, float):
+        t.assertAlmostEqual(actual.json_struct, expected.json_struct)
+        pass
     else:
         t.assertEqual(actual.json_struct, expected.json_struct)
 
@@ -90,7 +93,9 @@ class TestObjectState(unittest.TestCase):
         assert_equal_result(self, actual, expected)
 
     def test_basic_object(self):
-        actual = ObjectState.transition(Str('{"key": \t\t"value", "false": false, "null": \n    null}'))
+        actual = ObjectState.transition(
+            Str('{"key": \t\t"value", "false": false, "null": \n    null}')
+        )
         expected = StateTransitionResult(
             is_success=True,
             new_txt=Str(""),
@@ -192,3 +197,75 @@ class TestWhitespaceState(unittest.TestCase):
 
         self.assertFalse(res.is_success)
         self.assertEqual(actual, expected, f"expected {expected}, but got {actual}")
+
+
+class TestNumberState(unittest.TestCase):
+    def test_positive_integer(self):
+        actual = ValueState.transition(Str("1234789"))
+        expected = StateTransitionResult(
+            is_success=True,
+            new_txt=Str(""),
+            json_struct=1234789,
+        )
+
+        assert_equal_result(self, actual, expected)
+
+    def test_negative_integer(self):
+        actual = ValueState.transition(Str("-1234789"))
+        expected = StateTransitionResult(
+            is_success=True,
+            new_txt=Str(""),
+            json_struct=-1234789,
+        )
+
+        assert_equal_result(self, actual, expected)
+
+    def test_positive_zero(self):
+        actual = ValueState.transition(Str("0"))
+        expected = StateTransitionResult(
+            is_success=True,
+            new_txt=Str(""),
+            json_struct=0,
+        )
+
+        assert_equal_result(self, actual, expected)
+
+    def test_negative_zero(self):
+        actual = ValueState.transition(Str("-0"))
+        expected = StateTransitionResult(
+            is_success=True,
+            new_txt=Str(""),
+            json_struct=0,
+        )
+
+        assert_equal_result(self, actual, expected)
+
+    def test_fraction(self):
+        actual = ValueState.transition(Str("4.321"))
+        expected = StateTransitionResult(
+            is_success=True,
+            new_txt=Str(""),
+            json_struct=4.321,
+        )
+
+        assert_equal_result(self, actual, expected)
+
+    def test_exponent1(self):
+        actual = ValueState.transition(Str("32E-10"))
+        expected = StateTransitionResult(
+            is_success=True,
+            new_txt=Str(""),
+            json_struct=32e-10,
+        )
+
+        assert_equal_result(self, actual, expected)
+
+    def test_exponent2(self):
+        actual = ValueState.transition(Str("32e4"))
+        expected = StateTransitionResult(
+            is_success=True,
+            new_txt=Str(""),
+            json_struct=32e4,
+        )
+
+        assert_equal_result(self, actual, expected)
