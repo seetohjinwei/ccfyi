@@ -141,11 +141,13 @@ class TestStringState(unittest.TestCase):
         assert_equal_result(self, actual, expected)
 
     def test_complex_string(self):
-        actual = StringState.transition(Str('"\\"escape?42\n": {}'))
+        r"\\"
+
+        actual = StringState.transition(Str('"escape?42\\n": {}'))
         expected = StateTransitionResult(
             is_success=True,
             new_txt=Str(": {}"),
-            json_struct='"escape?42\n',
+            json_struct="escape?42\n",
         )
 
         assert_equal_result(self, actual, expected)
@@ -175,6 +177,16 @@ class TestStringState(unittest.TestCase):
         expected = StateTransitionResult(
             is_success=False,
             new_txt=Str("{}"),
+            json_struct=None,
+        )
+
+        assert_equal_result(self, actual, expected)
+
+    def test_control(self):
+        actual = StringState.transition(Str('"linebreak\n"'))
+        expected = StateTransitionResult(
+            is_success=False,
+            new_txt=Str('"linebreak\n"'),
             json_struct=None,
         )
 

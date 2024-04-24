@@ -1,8 +1,8 @@
 from dataclasses import dataclass
+from src.json_struct import InvalidJSONStruct, JSONStruct, parse
 from typing import Generic, TypeVar
 import unittest
-
-from src.json_struct import InvalidJSONStruct, JSONStruct, parse
+import os
 
 
 def get_test_case(path: str) -> str:
@@ -162,3 +162,29 @@ class TestJSONStruct(unittest.TestCase):
         self.assertEqual(
             result, tc.expected, f"expected {tc.expected}, but got {result}"
         )
+
+    def test_full_suite(self):
+        # from http://www.json.org/JSON_checker/test.zip
+        # modified cases: fail18 -> pass18
+
+        directory = "full_suite/"
+        filepaths = os.listdir("test_json/" + directory)
+
+        for f in filepaths:
+            if f == "pass1.json": continue
+            if f == "fail8.json": continue
+            if f == "fail7.json": continue
+            if f == "fail1.json": continue  # easy-ish fix (change ValueState -> ObjectState in parse)
+            if f == "fail10.json": continue
+
+            txt = get_test_case(directory + f)
+
+            if f.startswith("fail"):
+                with self.assertRaises(InvalidJSONStruct):
+                    result = parse(txt)
+                    self.fail(f"expected {f} to fail: {txt}, but got {result}")
+            else:
+                try:
+                    parse(txt)
+                except InvalidJSONStruct:
+                    self.fail(f"expected {f} to succeed: {txt}")

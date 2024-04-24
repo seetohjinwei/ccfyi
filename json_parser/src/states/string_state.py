@@ -8,7 +8,6 @@ from .common import (
 from .state import State, StateTransitionResult
 
 
-control_characters: list[str] = []  # ignore control characters
 escaped_characters: dict[str, str] = {
     '"': '"',  # quotation mark
     "\\": "\\",  # reverse solidus
@@ -20,6 +19,7 @@ escaped_characters: dict[str, str] = {
     "t": "\t",  # horizontal tab
     # \u hex digits is handled separately
 }
+control_characters: list[str] = [x for x in escaped_characters.values()]
 
 
 class _StringOpenQuotesState(State):
@@ -137,8 +137,13 @@ class _StringEscapeState(State):
 class _StringControlState(State):
     @staticmethod
     def transition(txt: Str) -> StateTransitionResult:
-        # not implemented
-        return get_failed_result(txt)
+        if len(txt) == 0 or txt.at(0) not in control_characters:
+            return get_failed_result(txt)
+
+        json_struct = txt.at(0)
+        txt = txt.substring(1)
+
+        return StateTransitionResult(True, txt, json_struct)
 
 
 class StringState(State):
@@ -170,19 +175,24 @@ class StringState(State):
                 str_builder.append(result.json_struct)
                 return AttemptResult(AttemptResultAction.PASS, result)
 
+            def attempt_control(result: StateTransitionResult) -> AttemptResult:
+                return AttemptResult(AttemptResultAction.FAIL, result)
+
             result = attempt_states(
                 txt,
                 [
                     (_StringCloseQuotesState, attempt_close_quotes),
                     (_StringEscapeState, attempt),
+                    (_StringControlState, attempt_control),
                     (_StringConsumeState, attempt),
-                    (_StringControlState, attempt),
                 ],
             )
             match result:
                 case AttemptResult(action=AttemptResultAction.RETURN):
                     return result.get()
                 case AttemptResult(action=AttemptResultAction.NO_MATCH):
+                    return failed_result
+                case AttemptResult(action=AttemptResultAction.FAIL):
                     return failed_result
                 case AttemptResult(action=AttemptResultAction.PASS):
                     pass

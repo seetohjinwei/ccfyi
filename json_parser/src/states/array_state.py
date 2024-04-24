@@ -50,7 +50,7 @@ class _ArrayCommaState(State):
         return StateTransitionResult(
             is_success=True,
             new_txt=new_txt,
-            json_struct=None,
+            json_struct=",",
         )
 
 
@@ -65,6 +65,7 @@ class ArrayState(State):
         txt = result.new_txt
 
         is_first_element: bool = True
+        is_prev_comma: bool = False
 
         json_struct: list = []
 
@@ -77,6 +78,9 @@ class ArrayState(State):
                 return AttemptResult(AttemptResultAction.VALUE, result)
 
             def attempt_close(result: StateTransitionResult) -> AttemptResult:
+                if is_prev_comma:
+                    return AttemptResult(AttemptResultAction.FAIL, result)
+
                 result = StateTransitionResult(
                     is_success=True,
                     new_txt=result.new_txt,
@@ -85,9 +89,9 @@ class ArrayState(State):
                 return AttemptResult(AttemptResultAction.RETURN, result)
 
             def attempt_comma(result: StateTransitionResult) -> AttemptResult:
-                if is_first_element:
+                if is_first_element or is_prev_comma:
                     return AttemptResult(AttemptResultAction.FAIL, result)
-                return AttemptResult(AttemptResultAction.PASS, result)
+                return AttemptResult(AttemptResultAction.VALUE, result)
 
             result = WhitespaceState.transition(txt)
 
@@ -100,19 +104,26 @@ class ArrayState(State):
                     (_ArrayCommaState, attempt_comma),
                 ],
             )
+
+            is_prev_comma = False
+            txt = result.new_txt
+
             match result:
                 case AttemptResult(action=AttemptResultAction.RETURN):
                     return result.get()
                 case AttemptResult(action=AttemptResultAction.FAIL):
                     return failed_result
                 case AttemptResult(action=AttemptResultAction.VALUE):
+                    if result.get().json_struct == ",":
+                        # handle comma separately
+                        is_prev_comma = True
+                        continue
+
                     is_first_element = False
                     json_struct.append(result.get().json_struct)
                 case AttemptResult(action=AttemptResultAction.NO_MATCH):
                     return failed_result
                 case AttemptResult(action=AttemptResultAction.PASS):
                     pass
-
-            txt = result.new_txt
 
         return failed_result

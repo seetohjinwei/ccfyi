@@ -3,7 +3,9 @@ from .common import get_failed_result
 from .state import State, StateTransitionResult
 
 
-def _loop_number(txt: Str) -> tuple[Str, int]:
+def _loop_number(txt: Str) -> tuple[Str, int, bool]:
+    has_number: bool = False
+
     value = 0
     while len(txt) > 0:
         c = txt.at(0)
@@ -11,10 +13,11 @@ def _loop_number(txt: Str) -> tuple[Str, int]:
             txt = txt.substring(1)
             value *= 10
             value += ord(c) - ord("0")
+            has_number = True
         else:
             break
 
-    return txt, value
+    return txt, value, has_number
 
 
 def _loop_fraction(txt: Str) -> tuple[Str, float]:
@@ -65,7 +68,9 @@ class _NumberExponentState(State):
         elif txt.at(0) == "+":
             txt = txt.substring(1)
 
-        txt, value = _loop_number(txt)
+        txt, value, has_number = _loop_number(txt)
+        if not has_number:
+            return failed_result
 
         if is_negative:
             value *= -1
@@ -91,7 +96,7 @@ class NumberState(State):
             if len(txt) == 0 or txt.at(0) not in [str(x) for x in range(0, 9 + 1)]:
                 return failed_result
 
-            txt, value = _loop_number(txt)
+            txt, value, _ = _loop_number(txt)
 
         result = _NumberFractionState.transition(txt)
         if result.is_success:
