@@ -2,6 +2,7 @@ from .state import State, StateTransitionResult
 from ..str_slice import Str
 
 
+# TODO:
 class InitialState(State):
     pass
     # @staticmethod

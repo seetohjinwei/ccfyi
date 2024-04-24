@@ -1,9 +1,10 @@
-from src.str_slice import Str
 from src.states.array_state import ArrayState
+from src.states.object_state import ObjectState
 from src.states.state import StateTransitionResult
 from src.states.string_state import StringState
 from src.states.value_state import ValueState
 from src.states.whitespace_state import WhitespaceState
+from src.str_slice import Str
 import unittest
 
 
@@ -72,6 +73,28 @@ class TestValueState(unittest.TestCase):
             is_success=False,
             new_txt=Str("   "),
             json_struct=None,
+        )
+
+        assert_equal_result(self, actual, expected)
+
+
+class TestObjectState(unittest.TestCase):
+    def test_empty_object(self):
+        actual = ObjectState.transition(Str("{}"))
+        expected = StateTransitionResult(
+            is_success=True,
+            new_txt=Str(""),
+            json_struct={},
+        )
+
+        assert_equal_result(self, actual, expected)
+
+    def test_basic_object(self):
+        actual = ObjectState.transition(Str('{"key": \t\t"value", "false": false, "null": \n    null}'))
+        expected = StateTransitionResult(
+            is_success=True,
+            new_txt=Str(""),
+            json_struct={"key": "value", "false": False, "null": None},
         )
 
         assert_equal_result(self, actual, expected)
