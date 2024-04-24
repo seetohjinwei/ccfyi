@@ -11,20 +11,24 @@ import unittest
 def assert_equal_result(
     t: unittest.TestCase, actual: StateTransitionResult, expected: StateTransitionResult
 ) -> None:
-    t.assertEqual(actual.is_success, expected.is_success)
-    t.assertEqual(actual.new_txt, expected.new_txt)
+    message = f"expected {expected}, but got {actual}"
+
+    t.assertEqual(actual.is_success, expected.is_success, message)
+    t.assertEqual(actual.new_txt, expected.new_txt, message)
 
     if isinstance(actual.json_struct, dict) and isinstance(expected.json_struct, dict):
-        t.assertDictEqual(actual.json_struct, expected.json_struct)
+        t.assertDictEqual(actual.json_struct, expected.json_struct, message)
     elif isinstance(actual.json_struct, list) and isinstance(
         expected.json_struct, list
     ):
-        t.assertListEqual(actual.json_struct, expected.json_struct)
-    elif isinstance(actual.json_struct, float) and isinstance(expected.json_struct, float):
-        t.assertAlmostEqual(actual.json_struct, expected.json_struct)
+        t.assertListEqual(actual.json_struct, expected.json_struct, message)
+    elif isinstance(actual.json_struct, float) and isinstance(
+        expected.json_struct, float
+    ):
+        t.assertAlmostEqual(actual.json_struct, expected.json_struct, msg=message)
         pass
     else:
-        t.assertEqual(actual.json_struct, expected.json_struct)
+        t.assertEqual(actual.json_struct, expected.json_struct, message)
 
 
 class TestArrayState(unittest.TestCase):
@@ -93,13 +97,33 @@ class TestObjectState(unittest.TestCase):
         assert_equal_result(self, actual, expected)
 
     def test_basic_object(self):
+        actual = ObjectState.transition(Str('{"a": "b"}'))
+        expected = StateTransitionResult(
+            is_success=True,
+            new_txt=Str(""),
+            json_struct={"a": "b"},
+        )
+
+        assert_equal_result(self, actual, expected)
+
+    def test_complex_object(self):
         actual = ObjectState.transition(
-            Str('{"key": \t\t"value", "false": false, "null": \n    null}')
+            Str('{"key": \t\t"value", "false": false, "null": \n    null, "num": 123}')
         )
         expected = StateTransitionResult(
             is_success=True,
             new_txt=Str(""),
-            json_struct={"key": "value", "false": False, "null": None},
+            json_struct={"key": "value", "false": False, "null": None, "num": 123},
+        )
+
+        assert_equal_result(self, actual, expected)
+
+    def test_trailing_comma(self):
+        actual = ObjectState.transition(Str('{"key": "value",}'))
+        expected = StateTransitionResult(
+            is_success=False,
+            new_txt=Str('{"key": "value",}'),
+            json_struct=None,
         )
 
         assert_equal_result(self, actual, expected)
