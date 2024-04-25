@@ -40,7 +40,7 @@ class _NumberFractionState(State):
     def transition(txt: Str) -> StateTransitionResult:
         failed_result = get_failed_result(txt)
 
-        if not txt.startswith("."):
+        if not txt.starts_with("."):
             return failed_result
 
         txt = txt.substring(1)
@@ -85,11 +85,11 @@ class NumberState(State):
 
         is_negative: bool = False
 
-        if txt.startswith("-"):
+        if txt.starts_with("-"):
             is_negative = True
             txt = txt.substring(1)
 
-        if txt.startswith("0"):
+        if txt.starts_with("0"):
             value = 0
             txt = txt.substring(1)
         else:

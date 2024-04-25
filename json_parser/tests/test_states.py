@@ -8,6 +8,9 @@ from src.str_slice import Str
 import unittest
 
 
+# Useful site: https://www.pythonescaper.com
+
+
 def assert_equal_result(
     t: unittest.TestCase, actual: StateTransitionResult, expected: StateTransitionResult
 ) -> None:
@@ -128,6 +131,16 @@ class TestObjectState(unittest.TestCase):
 
         assert_equal_result(self, actual, expected)
 
+    def test_slash(self):
+        actual = ObjectState.transition(Str('{"slash": "/ & \\/"}'))
+        expected = StateTransitionResult(
+            is_success=True,
+            new_txt=Str(""),
+            json_struct={"slash": "/ & /"},
+        )
+
+        assert_equal_result(self, actual, expected)
+
 
 class TestStringState(unittest.TestCase):
     def test_basic_string(self):
@@ -188,6 +201,25 @@ class TestStringState(unittest.TestCase):
             is_success=False,
             new_txt=Str('"linebreak\n"'),
             json_struct=None,
+        )
+
+        assert_equal_result(self, actual, expected)
+
+    def test_control2(self):
+        from src.states.string_state import _StringControlState
+
+        actual = _StringControlState.transition(Str("\\x15"))
+
+        self.assertTrue(actual.is_success)
+
+    def test_unicode(self):
+        from src.states.string_state import _StringEscapeUnicodeState
+
+        actual = _StringEscapeUnicodeState.transition(Str("uFCDE"))
+        expected = StateTransitionResult(
+            is_success=True,
+            new_txt=Str(""),
+            json_struct=chr(int("FCDE", 16)),
         )
 
         assert_equal_result(self, actual, expected)

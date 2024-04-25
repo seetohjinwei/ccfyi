@@ -36,7 +36,7 @@ class Str:
 
         return self.s[self.lo + index]
 
-    def startswith(self, s: "Str | str") -> bool:
+    def starts_with(self, s: "Str | str") -> bool:
         length = len(s)
         if len(self) < length:
             return False
@@ -48,6 +48,15 @@ class Str:
             it += 1
 
         return True
+
+    def starts_with_any(self, xs: "list[Str | str] | list[Str] | list[str]") -> "Str | None":
+        for s in xs:
+            if self.starts_with(s):
+                if isinstance(s, Str):
+                    return s
+                return Str(s)
+
+        return None
 
     def __getitem__(self, index: int) -> str:
         return self.at(index)

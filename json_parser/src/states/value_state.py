@@ -18,11 +18,11 @@ import src.states.object_state
 class _ValueOtherState(State):
     @staticmethod
     def transition(txt: Str) -> StateTransitionResult:
-        if txt.startswith("true"):
+        if txt.starts_with("true"):
             return StateTransitionResult(True, txt.substring(4), True)
-        elif txt.startswith("false"):
+        elif txt.starts_with("false"):
             return StateTransitionResult(True, txt.substring(5), False)
-        elif txt.startswith("null"):
+        elif txt.starts_with("null"):
             return StateTransitionResult(True, txt.substring(4), None)
 
         return get_failed_result(txt)

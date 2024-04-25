@@ -31,23 +31,23 @@ class TestStrSlice(unittest.TestCase):
     def test_startswith1(self):
         s = Str("abcde")
 
-        actual = s.startswith("ab")
+        actual = s.starts_with("ab")
         self.assertTrue(actual)
 
     def test_startswith2(self):
         s = Str("bacde")
 
-        actual = s.startswith("ab")
+        actual = s.starts_with("ab")
         self.assertFalse(actual)
 
     def test_startswith3(self):
         s = Str("abcde")
 
-        actual = s.startswith(Str("ab"))
+        actual = s.starts_with(Str("ab"))
         self.assertTrue(actual)
 
     def test_startswith4(self):
         s = Str("bacde")
 
-        actual = s.startswith(Str("ab"))
+        actual = s.starts_with(Str("ab"))
         self.assertFalse(actual)

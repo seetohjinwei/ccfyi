@@ -19,7 +19,41 @@ escaped_characters: dict[str, str] = {
     "t": "\t",  # horizontal tab
     # \u hex digits is handled separately
 }
-control_characters: list[str] = [x for x in escaped_characters.values()]
+# control_characters: list[str] = [chr(x) for x in range(0, 0x1F + 1)]
+control_characters: list[str] = [
+    "\\x00",
+    "\\x01",
+    "\\x02",
+    "\\x03",
+    "\\x04",
+    "\\x05",
+    "\\x06",
+    "\\x07",
+    "\\x08",
+    "\t",
+    "\n",
+    "\\x0b",
+    "\\x0c",
+    "\r",
+    "\\x0e",
+    "\\x0f",
+    "\\x10",
+    "\\x11",
+    "\\x12",
+    "\\x13",
+    "\\x14",
+    "\\x15",
+    "\\x16",
+    "\\x17",
+    "\\x18",
+    "\\x19",
+    "\\x1a",
+    "\\x1b",
+    "\\x1c",
+    "\\x1d",
+    "\\x1e",
+    "\\x1f",
+]
 
 
 class _StringOpenQuotesState(State):
@@ -73,6 +107,8 @@ class _StringEscapeUnicodeState(State):
             # not u
             return get_failed_result(txt)
 
+        txt = txt.substring(1)
+
         # special escape character (hex digits for unicode)
         digits = txt.substring(0, 4)
         try:
@@ -108,9 +144,11 @@ class _StringEscapeRegularState(State):
 class _StringEscapeState(State):
     @staticmethod
     def transition(txt: Str) -> StateTransitionResult:
+        failed_result = get_failed_result(txt)
+
         if len(txt) == 0 or txt.at(0) != "\\":
-            # not escape character
-            return get_failed_result(txt)
+            # not escape character (OK!)
+            return failed_result
 
         def attempt(result: StateTransitionResult) -> AttemptResult:
             return AttemptResult(AttemptResultAction.RETURN, result)
@@ -130,18 +168,23 @@ class _StringEscapeState(State):
             case AttemptResult(action=AttemptResultAction.RETURN):
                 return result.get()
             case AttemptResult(action=AttemptResultAction.NO_MATCH):
-                return get_failed_result(txt)
-        return get_failed_result(txt)
+                # should fail the entire string
+                from src.json_struct import InvalidJSONStruct
+                raise InvalidJSONStruct
+
+        return failed_result
 
 
 class _StringControlState(State):
     @staticmethod
     def transition(txt: Str) -> StateTransitionResult:
-        if len(txt) == 0 or txt.at(0) not in control_characters:
+        cc = txt.starts_with_any(control_characters)
+        if cc is None:
             return get_failed_result(txt)
 
-        json_struct = txt.at(0)
-        txt = txt.substring(1)
+        json_struct = str(cc)
+        length = len(cc)
+        txt = txt.substring(length)
 
         return StateTransitionResult(True, txt, json_struct)
 

@@ -7,7 +7,7 @@ import os
 
 def get_test_case(path: str) -> str:
     with open("test_json/" + path, "r") as f:
-        return f.read()
+        return f.read().strip()
 
 
 E = TypeVar("E")
@@ -170,21 +170,24 @@ class TestJSONStruct(unittest.TestCase):
         directory = "full_suite/"
         filepaths = os.listdir("test_json/" + directory)
 
-        for f in filepaths:
-            if f == "pass1.json": continue
-            if f == "fail8.json": continue
-            if f == "fail7.json": continue
-            if f == "fail1.json": continue  # easy-ish fix (change ValueState -> ObjectState in parse)
-            if f == "fail10.json": continue
+        failed_cases: list[str] = []
 
+        for f in filepaths:
             txt = get_test_case(directory + f)
 
             if f.startswith("fail"):
-                with self.assertRaises(InvalidJSONStruct):
+                try:
                     result = parse(txt)
-                    self.fail(f"expected {f} to fail: {txt}, but got {result}")
+                    failed_cases.append(f"expected {f} to fail: {txt}, but got {result}")
+                except InvalidJSONStruct:
+                    pass
             else:
                 try:
                     parse(txt)
-                except InvalidJSONStruct:
-                    self.fail(f"expected {f} to succeed: {txt}")
+                except InvalidJSONStruct as e:
+                    failed_cases.append(f"expected {f} to succeed: {txt}, but got {e}")
+
+        if failed_cases:
+            failed_cases.append(f"failures={len(failed_cases)}, total={len(filepaths)}")
+            message = "\n".join(failed_cases)
+            self.fail(message)
