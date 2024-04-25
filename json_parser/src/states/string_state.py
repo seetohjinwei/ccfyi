@@ -19,7 +19,6 @@ escaped_characters: dict[str, str] = {
     "t": "\t",  # horizontal tab
     # \u hex digits is handled separately
 }
-# control_characters: list[str] = [chr(x) for x in range(0, 0x1F + 1)]
 control_characters: list[str] = [
     "\\x00",
     "\\x01",
