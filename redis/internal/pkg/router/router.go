@@ -26,16 +26,18 @@ func New(routes []Route) *Router {
 
 func NewDefault() *Router {
 	routes := []Route{
-		// TODO: add the routes here
-		func(commands []string) (string, bool) {
-			return "+OK\r\n", true
-		},
+		ping,
 	}
 
 	return New(routes)
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	// TODO: Go router somehow returns 400 Bad Request before this is even called...
+	// TODO: need to change to reading the raw TCP payload!!
+
+	log.Printf("got request %v", req) // TODO: remove
+
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		log.Printf("err %q from parsing body: %q", BodyParsingErr, body)
@@ -96,6 +98,7 @@ func (r *Router) route(commands []string) (string, bool) {
 	for _, route := range r.handlers {
 		resp, ok := route(commands)
 		if ok {
+			log.Printf("received %v, response %q", commands, resp)
 			return resp, true
 		}
 	}

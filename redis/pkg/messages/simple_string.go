@@ -16,6 +16,10 @@ func (r *SimpleString) Serialise() string {
 	return fmt.Sprintf("+%s\r\n", r.str)
 }
 
+func NewSimpleString(str string) *SimpleString {
+	return &SimpleString{str}
+}
+
 func deserialiseSimpleString(message string) (*SimpleString, string, error) {
 	// +OK\r\n
 
