@@ -10,13 +10,14 @@ type SimpleString struct {
 }
 
 func deserialiseSimpleString(message string) (*SimpleString, string, error) {
+	// +OK\r\n
+
 	curr := message
 	for i := 0; i < len(message); i++ {
 		if strings.HasPrefix(curr, CRLF) {
 			// found the end
 			ret := message[:i]
-			length := len(curr)
-			remaining := curr[:length-2]
+			remaining := curr[2:]
 			return &SimpleString{ret}, remaining, nil
 		}
 

@@ -10,13 +10,14 @@ type Error struct {
 }
 
 func deserialiseError(message string) (*Error, string, error) {
+	// -Error message\r\n
+
 	curr := message
 	for i := 0; i < len(message); i++ {
 		if strings.HasPrefix(curr, CRLF) {
 			// found the end
 			ret := message[:i]
-			length := len(curr)
-			remaining := curr[:length-2]
+			remaining := curr[2:]
 			return &Error{ret}, remaining, nil
 		}
 

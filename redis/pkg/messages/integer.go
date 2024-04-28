@@ -10,7 +10,13 @@ type Integer struct {
 	value int64
 }
 
+func (r *Integer) Serialise() string {
+	return strconv.FormatInt(r.value, 10)
+}
+
 func deserialiseInteger(message string) (*Integer, string, error) {
+	// :[<+|->]<value>\r\n
+
 	if len(message) == 0 {
 		return nil, "", errors.New("integer must not be empty")
 	}
@@ -31,8 +37,7 @@ func deserialiseInteger(message string) (*Integer, string, error) {
 			if isNegative {
 				value *= -1
 			}
-			length := len(curr)
-			remaining := curr[:length-2]
+			remaining := curr[2:]
 			return &Integer{value}, remaining, nil
 		}
 
@@ -46,8 +51,4 @@ func deserialiseInteger(message string) (*Integer, string, error) {
 	}
 
 	return nil, "", errors.New("integer must end with CRLF")
-}
-
-func (r *Integer) Serialise() string {
-	return strconv.FormatInt(r.value, 10)
 }

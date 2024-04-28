@@ -16,7 +16,7 @@ func TestDeserialise(t *testing.T) {
 		{"simple_string_2", "+hello world\r\n", &SimpleString{"hello world"}, false},
 		{"simple_string_empty", "+\r\n", &SimpleString{""}, false},
 
-		{"bulk_string_1", "$-1\r\n", nil, false},
+		{"bulk_string_1", "$-1\r\n", (*BulkString)(nil), false},
 		{"bulk_string_2", "$0\r\n\r\n", &BulkString{0, ""}, false},
 
 		{
@@ -66,13 +66,13 @@ func TestDeserialise(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			actual, err := Deserialise(test.message)
 			if test.hasError && err == nil {
-				t.Errorf("expected err, but succeeded with %v", actual)
+				t.Errorf("expected err, but succeeded with %+v", actual)
 			} else if !test.hasError && err != nil {
-				t.Errorf("expected no err, but got %v", err)
+				t.Errorf("expected no err, but got %+v", err)
 			}
 
 			if !reflect.DeepEqual(test.expected, actual) {
-				t.Errorf("expected %v, but got %v", test.expected, actual)
+				t.Errorf("expected %+v, but got %+v", test.expected, actual)
 			}
 		})
 	}
