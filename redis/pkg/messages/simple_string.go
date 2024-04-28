@@ -2,11 +2,18 @@ package messages
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
 type SimpleString struct {
 	str string
+}
+
+func (r *SimpleString) Serialise() string {
+	// +OK\r\n
+
+	return fmt.Sprintf("+%s\r\n", r.str)
 }
 
 func deserialiseSimpleString(message string) (*SimpleString, string, error) {
@@ -29,8 +36,4 @@ func deserialiseSimpleString(message string) (*SimpleString, string, error) {
 	}
 
 	return nil, "", errors.New("simple string must end with CRLF")
-}
-
-func (r *SimpleString) Serialise() string {
-	return r.str
 }

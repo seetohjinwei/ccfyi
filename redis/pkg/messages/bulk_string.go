@@ -2,6 +2,7 @@ package messages
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -12,7 +13,14 @@ type BulkString struct {
 }
 
 func (r *BulkString) Serialise() string {
-	return r.str
+	// $<length>\r\n<data>\r\n
+
+	if r == nil {
+		// null bulk string is represented by a nil object
+		return "$-1\r\n"
+	}
+
+	return fmt.Sprintf("$%d\r\n%s\r\n", r.len, r.str)
 }
 
 func deserialiseBulkString(message string) (*BulkString, string, error) {

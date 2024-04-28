@@ -2,6 +2,8 @@ package messages
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 )
 
 type Array struct {
@@ -10,8 +12,15 @@ type Array struct {
 }
 
 func (r *Array) Serialise() string {
-	// TODO:
-	return ""
+	// *<number-of-elements>\r\n<element-1>...<element-n>
+
+	builder := strings.Builder{}
+	builder.WriteString(fmt.Sprintf("*%d\r\n", r.len))
+	for _, item := range r.items {
+		builder.WriteString(item.Serialise())
+	}
+
+	return builder.String()
 }
 
 func deserialiseArray(message string) (*Array, string, error) {

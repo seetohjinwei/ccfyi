@@ -2,11 +2,18 @@ package messages
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
 type Error struct {
 	str string
+}
+
+func (r *Error) Serialise() string {
+	// -Error message\r\n
+
+	return fmt.Sprintf("-%s\r\n", r.str)
 }
 
 func deserialiseError(message string) (*Error, string, error) {
@@ -29,8 +36,4 @@ func deserialiseError(message string) (*Error, string, error) {
 	}
 
 	return nil, "", errors.New("error must end with CRLF")
-}
-
-func (r *Error) Serialise() string {
-	return r.str
 }

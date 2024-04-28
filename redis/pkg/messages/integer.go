@@ -2,7 +2,7 @@ package messages
 
 import (
 	"errors"
-	"strconv"
+	"fmt"
 	"strings"
 )
 
@@ -11,7 +11,16 @@ type Integer struct {
 }
 
 func (r *Integer) Serialise() string {
-	return strconv.FormatInt(r.value, 10)
+	// :[<+|->]<value>\r\n
+
+	sign := "" // this is optional
+	value := r.value
+	if r.value < 0 {
+		sign = "-"
+		value *= -1
+	}
+
+	return fmt.Sprintf(":%s%d\r\n", sign, value)
 }
 
 func deserialiseInteger(message string) (*Integer, string, error) {
