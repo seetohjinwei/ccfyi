@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/router"
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/server"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 
 	// protocol description: https://redis.io/docs/latest/develop/reference/protocol-spec/#resp-protocol-description
 
-	router := router.New("6379") // TODO: take port as flag
+	router := server.New("6379") // TODO: take port as flag
 	err := router.Serve()
 	if err != nil && err != http.ErrServerClosed {
 		log.Fatalf("server serve error: %v", err)

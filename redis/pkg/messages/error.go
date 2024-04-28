@@ -10,10 +10,6 @@ type Error struct {
 	str string
 }
 
-func NewError(message string) *Error {
-	return &Error{message}
-}
-
 func (r *Error) Serialise() string {
 	// -Error message\r\n
 
@@ -40,4 +36,12 @@ func deserialiseError(message string) (*Error, string, error) {
 	}
 
 	return nil, "", errors.New("error must end with CRLF")
+}
+
+func GetError(err error) string {
+	return GetErrorString(err.Error())
+}
+
+func GetErrorString(err string) string {
+	return (&Error{err}).Serialise()
 }

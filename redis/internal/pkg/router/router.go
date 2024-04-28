@@ -1,62 +1,104 @@
 package router
 
 import (
-	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
 
-	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/handler"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
 
-var EmptyBodyErr string = messages.NewError("request body cannot be empty").Serialise()
-var BodyParsingErr string = messages.NewError("request body could not be parsed").Serialise()
+var EmptyBodyErr string = messages.GetErrorString("request body cannot be empty")
+var BodyParsingErr string = messages.GetErrorString("request body could not be parsed")
+
+type Route func(commands []string) (string, bool)
 
 type Router struct {
-	srv *http.Server
+	handlers []Route
 }
 
-func handlerFunc(w http.ResponseWriter, req *http.Request) {
+func New(routes []Route) *Router {
+	router := &Router{routes}
+	return router
+}
+
+func NewDefault() *Router {
+	routes := []Route{
+		// TODO: add the routes here
+		func(commands []string) (string, bool) {
+			return "+OK\r\n", true
+		},
+	}
+
+	return New(routes)
+}
+
+func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
+		log.Printf("err %q from parsing body: %q", BodyParsingErr, body)
 		fmt.Fprint(w, BodyParsingErr)
 		return
 	} else if len(body) == 0 {
+		log.Printf("err %q from parsing body: %q", EmptyBodyErr, body)
 		fmt.Fprint(w, EmptyBodyErr)
 		return
 	}
 
-	res := handler.Handle(string(body))
+	res := r.handle(string(body))
 	fmt.Fprint(w, res)
 }
 
-func New(port string) *Router {
-	srv := &http.Server{
-		Addr:    ":" + port,
-		Handler: http.HandlerFunc(handlerFunc),
+func (r *Router) handle(request string) string {
+	command, err := messages.Deserialise(request)
+	if err != nil {
+		log.Printf("err from parsing request %q: %v", request, err)
+		return messages.GetError(err)
 	}
 
-	return &Router{
-		srv: srv,
+	commands, err := r.getCommands(command)
+	if err != nil {
+		log.Printf("err from parsing request %q: %v", request, err)
+		return messages.GetError(err)
 	}
+
+	ret, ok := r.route(commands)
+	if !ok {
+		msg := "did not match any route"
+		log.Printf("err from matching command %q: %v", commands, msg)
+		return messages.GetErrorString(msg)
+	}
+
+	return ret
 }
 
-func (r *Router) Serve() error {
-	go func() {
-		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt)
-		<-sigint
+func (r *Router) getCommands(request messages.Message) ([]string, error) {
+	array, ok := request.(*messages.Array)
+	if !ok {
+		return nil, errors.New("request must be an array")
+	}
 
-		err := r.srv.Shutdown(context.Background())
-		if err != nil {
-			log.Printf("server shutdown error: %v", err)
+	commands, err := array.GetCommands()
+	if err != nil {
+		return nil, err
+	}
+
+	return commands, nil
+}
+
+func (r *Router) AddRoute(route Route) {
+	r.handlers = append(r.handlers, route)
+}
+
+func (r *Router) route(commands []string) (string, bool) {
+	for _, route := range r.handlers {
+		resp, ok := route(commands)
+		if ok {
+			return resp, true
 		}
-	}()
+	}
 
-	err := r.srv.ListenAndServe()
-	return err
+	return "", false
 }

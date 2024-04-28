@@ -23,6 +23,20 @@ func (r *Array) Serialise() string {
 	return builder.String()
 }
 
+// GetCommands gets the commands from an Array.
+// The array must only contain SimpleString.
+func (r *Array) GetCommands() ([]string, error) {
+	ret := make([]string, r.len)
+	for i, item := range r.items {
+		str, ok := item.(*BulkString)
+		if !ok {
+			return nil, errors.New("commands must be bulk strings")
+		}
+		ret[i] = str.str
+	}
+	return ret, nil
+}
+
 func deserialiseArray(message string) (*Array, string, error) {
 	// *<number-of-elements>\r\n<element-1>...<element-n>
 
