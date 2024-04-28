@@ -10,6 +10,10 @@ type Error struct {
 	str string
 }
 
+func NewError(message string) *Error {
+	return &Error{message}
+}
+
 func (r *Error) Serialise() string {
 	// -Error message\r\n
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/router"
 )
@@ -21,7 +22,7 @@ func main() {
 
 	router := router.New("6379") // TODO: take port as flag
 	err := router.Serve()
-	if err != nil {
+	if err != nil && err != http.ErrServerClosed {
 		log.Fatalf("server serve error: %v", err)
 	}
 }
