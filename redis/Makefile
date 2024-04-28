@@ -1,5 +1,5 @@
 MAIN=.
-NAME=redis
+NAME=redis-server
 BUILD_DIR=output/
 
 .PHONY: help

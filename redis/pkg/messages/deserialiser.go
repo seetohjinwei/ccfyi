@@ -2,7 +2,6 @@ package messages
 
 import (
 	"errors"
-	"fmt"
 )
 
 func Deserialise(message string) (Message, error) {
@@ -11,7 +10,6 @@ func Deserialise(message string) (Message, error) {
 		return nil, err
 	}
 	if remaining != "" {
-		fmt.Printf("ret=%v, remaining=%q\n", ret, remaining)
 		return nil, errors.New("deserialise invalid pattern")
 	}
 	return ret, nil
