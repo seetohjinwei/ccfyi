@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/server"
 )
@@ -20,9 +19,12 @@ func main() {
 
 	// protocol description: https://redis.io/docs/latest/develop/reference/protocol-spec/#resp-protocol-description
 
-	router := server.New("6379") // TODO: take port as flag
-	err := router.Serve()
-	if err != nil && err != http.ErrServerClosed {
+	router, err := server.New("6379") // TODO: take port as flag
+	if err != nil {
+		log.Fatalf("server init error: %v", err)
+	}
+	err = router.Serve()
+	if err != nil {
 		log.Fatalf("server serve error: %v", err)
 	}
 }
