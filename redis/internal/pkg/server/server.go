@@ -14,14 +14,18 @@ import (
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/router"
 )
 
+// Server is a TCP server. To construct one, use `Server::New`.
+// When a sigint is captured, if there are any ongoing events (e.g. connections), the server will wait for up to X seconds before forcefully shutting down; if there are no events, it will gracefully shutdown.
 type Server struct {
-	ctx  context.Context
-	port string
-	wg   sync.WaitGroup
-	r    *router.Router
-	l    net.Listener
+	ctx      context.Context
+	port     string
+	wg       sync.WaitGroup
+	stopOnce sync.Once
+	r        *router.Router
+	l        net.Listener
 }
 
+// New constructs a new Server with the specified port.
 func New(port string) (*Server, error) {
 	port = ":" + port
 	l, err := net.Listen("tcp", port)
@@ -31,11 +35,12 @@ func New(port string) (*Server, error) {
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	s := &Server{
-		ctx:  ctx,
-		port: ":" + port,
-		wg:   sync.WaitGroup{},
-		r:    router.NewDefault(),
-		l:    l,
+		ctx:      ctx,
+		port:     ":" + port,
+		wg:       sync.WaitGroup{},
+		stopOnce: sync.Once{},
+		r:        router.NewDefault(),
+		l:        l,
 	}
 
 	go func() {
@@ -49,6 +54,7 @@ func New(port string) (*Server, error) {
 	return s, nil
 }
 
+// Serve lets the server start accepting connections.
 func (s *Server) Serve() error {
 	if s == nil {
 		return errors.New("tried to call *Server::Serve() on nil")
@@ -69,28 +75,29 @@ func (s *Server) Serve() error {
 	}
 }
 
-func (s *Server) Stop() bool {
-	done := make(chan bool, 2)
-	go func() {
-		// TODO: increase timeout
-		<-time.After(1 * time.Second)
-		done <- false
-	}()
-	go func() {
-		s.wg.Wait()
-		done <- true
-	}()
+// Stops the server.
+func (s *Server) Stop() {
+	s.stopOnce.Do(func() {
+		done := make(chan bool, 2)
+		go func() {
+			// TODO: increase timeout
+			<-time.After(1 * time.Second)
+			done <- false
+		}()
+		go func() {
+			s.wg.Wait()
+			done <- true
+		}()
 
-	isGraceful := <-done
-	if isGraceful {
-		log.Printf("server gracefully stopped")
-	} else {
-		log.Printf("server abruptly stopped because of timeout")
-	}
+		isGraceful := <-done
+		if isGraceful {
+			log.Printf("server gracefully stopped")
+		} else {
+			log.Printf("server abruptly stopped because of timeout")
+		}
 
-	s.l.Close()
-
-	return isGraceful
+		s.l.Close()
+	})
 }
 
 func (s *Server) handleConnection(conn net.Conn) {
