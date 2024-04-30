@@ -1,10 +1,15 @@
 package main
 
 import (
-	"log"
+	"github.com/rs/zerolog/log"
 
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/logging"
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/server"
 )
+
+func init() {
+	logging.Init()
+}
 
 func main() {
 	// TODO:
@@ -21,10 +26,10 @@ func main() {
 
 	router, err := server.New("6379") // TODO: take port as flag
 	if err != nil {
-		log.Fatalf("server init error: %v", err)
+		log.Fatal().Err(err).Msg("server init")
 	}
 	err = router.Serve()
 	if err != nil {
-		log.Fatalf("server serve error: %v", err)
+		log.Fatal().Err(err).Msg("server serve error")
 	}
 }

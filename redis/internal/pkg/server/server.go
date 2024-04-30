@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"io"
-	"log"
 	"net"
 	"os"
 	"os/signal"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/router"
 )
@@ -91,9 +92,9 @@ func (s *Server) Stop() {
 
 		isGraceful := <-done
 		if isGraceful {
-			log.Printf("server gracefully stopped")
+			log.Info().Msg("server gracefully stopped")
 		} else {
-			log.Printf("server abruptly stopped because of timeout")
+			log.Info().Msg("server abruptly stopped because of timeout")
 		}
 
 		s.l.Close()
@@ -119,14 +120,14 @@ func (s *Server) handleConnection(conn net.Conn) {
 				if err == io.EOF {
 					isEof = true
 				} else {
-					log.Printf("err while reading from conn")
+					log.Err(err).Msg("reading from conn")
 					return
 				}
 			}
 
 			buf = append(buf, tmp[:n]...)
 			if len(buf) == 0 && isEof {
-				log.Printf("connection stopped because len(buf) == 0 && eof")
+				log.Debug().Msg("connection stopped because len(buf) == 0 && eof")
 				return
 			}
 			req := string(buf)
@@ -134,16 +135,16 @@ func (s *Server) handleConnection(conn net.Conn) {
 			if ok || isEof {
 				// return the reply
 				reply := []byte(reply)
+				log.Debug().Str("req", req).Bytes("reply", reply).Msg("raw")
 				for len(reply) > 0 {
 					n, err := conn.Write(reply)
 					if err != nil {
-						log.Printf("err while writing from conn")
+						log.Err(err).Msg("writing to conn")
 						return
 					}
 					reply = reply[n:]
 				}
 
-				log.Printf("debug raw request: %q, raw reply: %q", req, reply)
 				break
 			}
 		}

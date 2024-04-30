@@ -2,7 +2,8 @@ package router
 
 import (
 	"errors"
-	"log"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
@@ -32,20 +33,20 @@ func NewDefault() *Router {
 func (r *Router) Handle(request string) (string, bool) {
 	command, err := messages.Deserialise(request)
 	if err != nil {
-		// log.Printf("err from parsing request %q: %v", request, err)
+		log.Debug().Err(err).Str("request", request).Msg("parsing request")
 		return messages.GetError(err), false
 	}
 
 	commands, err := r.getCommands(command)
 	if err != nil {
-		log.Printf("err from getting commands from request %q: %v", request, err)
+		log.Err(err).Str("request", request).Msg("getting commands from request")
 		return messages.GetError(err), false
 	}
 
 	ret, ok := r.route(commands)
 	if !ok {
 		msg := "did not match any route"
-		log.Printf("err from matching command %q: %v", commands, msg)
+		log.Error().Str("err", msg).Strs("commands", commands).Msg("getting commands from request")
 		return messages.GetErrorString(msg), false
 	}
 
@@ -74,7 +75,7 @@ func (r *Router) route(commands []string) (string, bool) {
 	for _, route := range r.handlers {
 		resp, ok := route(commands)
 		if ok {
-			log.Printf("command: %v, resp: %q", commands, resp)
+			log.Info().Strs("commands", commands).Str("resp", resp).Msg("matched route")
 			return resp, true
 		}
 	}
