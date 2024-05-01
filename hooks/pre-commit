@@ -45,7 +45,7 @@ if [[ $has_whitespace ]]; then
 fi
 
 # Runs my pre-commit programs
-dirs=( "redis" )
+dirs=( "redis" "api_next" )
 for dir in "${dirs[@]}"
 do
 	if [[ $(git --no-pager diff --name-only -- $dir) ]]; then
