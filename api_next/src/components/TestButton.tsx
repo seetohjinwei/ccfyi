@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/utils/logging/logging";
 import { get } from "@/utils/requests/requests";
 import { Button } from "@mantine/core";
 
@@ -8,7 +9,7 @@ export default function TestButton() {
     <Button
       onClick={async () => {
         const res = await get("https://jsonplaceholder.typicode.com/todos/1");
-        console.log(res);
+        logger.info(res);
       }}
     >
       Le Test Button
