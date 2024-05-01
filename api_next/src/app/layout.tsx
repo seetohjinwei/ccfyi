@@ -5,8 +5,8 @@ import "@mantine/core/styles.css";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 
 export const metadata = {
-  title: "My Mantine app",
-  description: "I have followed setup instructions carefully",
+  title: "API Next",
+  description: "No nonsense way of testing your API endpoints.",
 };
 
 export default function RootLayout({
