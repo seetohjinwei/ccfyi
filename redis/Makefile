@@ -7,7 +7,6 @@ help:
 	@echo 'Usage:'
 	@sed -n 's/^##//p' $(MAKEFILE_LIST) | column -t -s ':' |  sed -e 's/^/ /'
 
-
 ## tidy: format code + tidy modfile
 .PHONY: tidy
 tidy:

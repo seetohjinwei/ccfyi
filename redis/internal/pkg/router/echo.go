@@ -1,7 +1,7 @@
 package router
 
 import (
-  "github.com/seetohjinwei/ccfyi/redis/pkg/messages"
+	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
 
 func echo(commands []string) (string, bool) {
