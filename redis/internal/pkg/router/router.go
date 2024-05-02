@@ -5,6 +5,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/handler"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
 
@@ -24,10 +25,10 @@ func New(routes []Route) *Router {
 
 func NewDefault() *Router {
 	routes := []Route{
-		ping,
-		echo,
-		get,
-		set,
+		handler.Ping,
+		handler.Echo,
+		handler.Get,
+		handler.Set,
 	}
 
 	return New(routes)

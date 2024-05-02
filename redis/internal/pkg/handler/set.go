@@ -1,11 +1,11 @@
-package router
+package handler
 
 import (
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
 
-func set(commands []string) (string, bool) {
+func Set(commands []string) (string, bool) {
 	if len(commands) == 0 || !commandsStartWith(commands, []string{"SET"}) {
 		return "", false
 	}

@@ -1,10 +1,10 @@
-package router
+package handler
 
 import (
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
 
-func ping(commands []string) (string, bool) {
+func Ping(commands []string) (string, bool) {
 	if len(commands) == 0 || !commandsStartWith(commands, []string{"PING"}) {
 		return "", false
 	}

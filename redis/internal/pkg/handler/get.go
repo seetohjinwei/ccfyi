@@ -1,4 +1,4 @@
-package router
+package handler
 
 import (
 	"github.com/rs/zerolog/log"
@@ -7,7 +7,7 @@ import (
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
 
-func get(commands []string) (string, bool) {
+func Get(commands []string) (string, bool) {
 	if len(commands) == 0 || !commandsStartWith(commands, []string{"GET"}) {
 		return "", false
 	}
