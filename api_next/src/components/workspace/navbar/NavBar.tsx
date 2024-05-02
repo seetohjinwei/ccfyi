@@ -11,6 +11,7 @@ import {
 } from "@tabler/icons-react";
 import { ChangeEventHandler, useState } from "react";
 import classes from "./NavBar.module.css";
+import { Section, sections } from "@/models/sections";
 
 interface Item {
   label: string;
@@ -21,11 +22,8 @@ interface Props {
   workspace: string;
   collections: Collection[];
   environments: Environment[];
-  setSelection: (type: string, key: string) => void;
+  setSelection: (type: Section, key: string) => void;
 }
-
-const sections = ["collections", "environments"] as const;
-type section = (typeof sections)[number];
 
 export default function NavBar({
   workspace,
@@ -33,7 +31,7 @@ export default function NavBar({
   environments,
   setSelection,
 }: Props) {
-  const [section, setSection] = useState<section>("collections");
+  const [section, setSection] = useState<Section>("collections");
   const [activeItem, setActiveItem] = useState<string | undefined>(undefined);
   const [searchValue, setSearchValue] = useState<string>("");
 
