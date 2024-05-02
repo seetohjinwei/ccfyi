@@ -13,12 +13,6 @@ import (
 
 type setFlag int
 
-const (
-	setNone setFlag = iota
-	setNX
-	setXX
-)
-
 func getDuration(commands []string) (time.Duration, []string, error) {
 	// first value is the type (ignore), second value is the time
 	if len(commands) < 2 {
@@ -41,14 +35,16 @@ func getDuration(commands []string) (time.Duration, []string, error) {
 }
 
 type setArgs struct {
-	flag      setFlag
+	NX        bool
+	XX        bool
 	shouldGet bool
 	expiry    time.Time
 }
 
 func parseSetArguments(commands []string) (setArgs, error) {
 	args := setArgs{
-		flag:      setNone,
+		NX:        false,
+		XX:        false,
 		shouldGet: false,
 		expiry:    time.Time{},
 	}
@@ -62,9 +58,9 @@ func parseSetArguments(commands []string) (setArgs, error) {
 	for len(commands) > 0 {
 		switch commands[0] {
 		case "NX":
-			args.flag = setNX
+			args.NX = true
 		case "XX":
-			args.flag = setXX
+			args.XX = true
 		case "GET":
 			args.shouldGet = true
 		case "EX":
@@ -114,11 +110,48 @@ func Set(commands []string) (string, bool) {
 
 	key := commands[1]
 	value := commands[2]
-
-	err := s.Set(key, store.NewString(value))
+	args, err := parseSetArguments(commands)
 	if err != nil {
 		return messages.GetError(err), true
 	}
 
+	var oldKey string
+	var exists bool
+	if args.NX || args.XX || args.shouldGet {
+		// only get the key if required
+		var item store.Item
+		var ok bool
+		item, exists = s.Get(key)
+		if exists {
+			oldKey, ok = item.Do("get", nil)
+			if !ok {
+				err := errors.New("item was not a string")
+				log.Error().Err(err).Msg("getDuration")
+				return messages.GetError(err), true
+			}
+		}
+	}
+
+	if (args.NX && exists) || (args.XX && !exists) {
+		// key was NOT set
+		return messages.NewNullBulkString().Serialise(), true
+	}
+
+	err = s.Set(key, store.NewString(value))
+	if err != nil {
+		return messages.GetError(err), true
+	}
+
+	if args.shouldGet {
+		// key was set (with GET)
+		if !exists {
+			return messages.NewNullBulkString().Serialise(), true
+		} else {
+			return messages.NewBulkString(oldKey).Serialise(), true
+		}
+	}
+	// key was set (without GET)
 	return messages.NewSimpleString("OK").Serialise(), true
 }
+
+// TODO: handle key expiration

@@ -35,12 +35,22 @@ func (s *Store) Set(key string, value Item) error {
 var (
 	store *Store
 	once  sync.Once
+	mu    sync.Mutex
 )
 
 func GetSingleton() *Store {
 	once.Do(func() {
-		store = New()
+		ResetSingleton()
 	})
 
+	return store
+}
+
+// ResetSingleton should only be used in tests.
+func ResetSingleton() *Store {
+	mu.Lock()
+	defer mu.Unlock()
+
+	store = New()
 	return store
 }
