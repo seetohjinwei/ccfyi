@@ -122,6 +122,11 @@ func TestDeserialise(t *testing.T) {
 		{"integer_1", ":420\r\n", &Integer{420}, false},
 		{"integer_2", ":+420\r\n", &Integer{420}, false},
 		{"integer_3", ":-420\r\n", &Integer{-420}, false},
+
+		{"invalid_1", "x_invalid_first_byte\r\n", nil, true},
+		{"invalid_2", ":+-420\r\n", nil, true},
+		{"invalid_3_wrong_len", "$0\r\nwronglen\r\n", nil, true},
+		{"invalid_4_wrong_len", "*2\r\n+str\r\n", nil, true},
 	}
 
 	for _, test := range tests {

@@ -45,10 +45,11 @@ if [[ $has_whitespace ]]; then
 fi
 
 # Runs my pre-commit programs
+wd="$(dirname "$0")/.."
 dirs=( "redis" )
 for dir in "${dirs[@]}"
 do
-	if [[ $(git --no-pager diff --name-only -- $dir) ]]; then
-		./$dir/pre-commit.sh
+	if [[ $(git --no-pager diff --staged --name-only -- $wd/$dir) ]]; then
+		$wd/$dir/pre-commit.sh
 	fi
 done

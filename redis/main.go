@@ -14,8 +14,6 @@ func init() {
 func main() {
 	// TODO:
 
-	// test my Serialise and Deserialise more? (esp error paths!)
-	// create some integration tests with the go redis client library
 	// zerolog display the file + line
 
 	// find some way to propagate errors? (not sure what i meant by this)
