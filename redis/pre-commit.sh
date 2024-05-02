@@ -5,5 +5,5 @@ set -e
 # change directory to this project
 cd $(dirname "$0")
 
-make tidy
-make test
+make tidy > /dev/null
+make test > /dev/null
