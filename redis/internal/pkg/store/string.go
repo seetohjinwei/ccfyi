@@ -18,12 +18,12 @@ func (s *String) Do(command string, args []string) (string, bool) {
 		if len(args) != 1 {
 			log.Error().Strs("args", args).Int("args len", len(args)).Msg("store.string wrong args len")
 		}
-		return s.get(args[0]), true
+		return s.get(), true
 	}
 
 	return "", false
 }
 
-func (s *String) get(key string) string {
+func (s *String) get() string {
 	return s.str
 }

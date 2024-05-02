@@ -11,6 +11,11 @@ func invalidArgNum() (string, bool) {
 	return messages.NewError(msg).Serialise(), true
 }
 
+func internalServerError() (string, bool) {
+	msg := "ERR internal server error (check server logs)"
+	return messages.NewError(msg).Serialise(), true
+}
+
 func commandsStartWith(commands []string, should []string) bool {
 	if len(commands) < len(should) {
 		return false

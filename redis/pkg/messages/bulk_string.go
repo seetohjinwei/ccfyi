@@ -23,6 +23,10 @@ func (r *BulkString) Serialise() string {
 	return fmt.Sprintf("$%d\r\n%s\r\n", r.len, r.str)
 }
 
+func NewNullBulkString() *BulkString {
+	return nil
+}
+
 func NewBulkString(str string) *BulkString {
 	return &BulkString{uint(len(str)), str}
 }

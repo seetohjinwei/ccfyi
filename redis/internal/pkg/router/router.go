@@ -26,6 +26,8 @@ func NewDefault() *Router {
 	routes := []Route{
 		ping,
 		echo,
+		get,
+		set,
 	}
 
 	return New(routes)

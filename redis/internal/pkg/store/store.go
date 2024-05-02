@@ -31,3 +31,16 @@ func (s *Store) Set(key string, value Item) error {
 
 	return nil
 }
+
+var (
+	store *Store
+	once  sync.Once
+)
+
+func GetSingleton() *Store {
+	once.Do(func() {
+		store = New()
+	})
+
+	return store
+}
