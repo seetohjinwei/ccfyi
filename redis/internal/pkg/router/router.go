@@ -25,6 +25,7 @@ func New(routes []Route) *Router {
 func NewDefault() *Router {
 	routes := []Route{
 		ping,
+		echo,
 	}
 
 	return New(routes)
@@ -47,7 +48,7 @@ func (r *Router) Handle(request string) (string, bool) {
 	if !ok {
 		msg := "did not match any route"
 		log.Error().Str("err", msg).Strs("commands", commands).Msg("getting commands from request")
-		return messages.GetErrorString(msg), false
+		return messages.GetErrorString(msg), true
 	}
 
 	return ret, true

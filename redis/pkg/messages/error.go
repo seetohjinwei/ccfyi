@@ -16,6 +16,10 @@ func (r *Error) Serialise() string {
 	return fmt.Sprintf("-%s\r\n", r.str)
 }
 
+func NewError(str string) *Error {
+	return &Error{str: str}
+}
+
 func deserialiseError(message string) (*Error, string, error) {
 	// -Error message\r\n
 
