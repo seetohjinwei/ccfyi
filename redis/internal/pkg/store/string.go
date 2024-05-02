@@ -15,7 +15,7 @@ func NewString(str string) *String {
 func (s *String) Do(command string, args []string) (string, bool) {
 	switch command {
 	case "get":
-		if len(args) != 1 {
+		if len(args) != 0 {
 			log.Error().Strs("args", args).Int("args len", len(args)).Msg("store.string wrong args len")
 		}
 		return s.get(), true

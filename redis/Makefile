@@ -27,6 +27,11 @@ audit:
 test:
 	go test -v -race -buildvcs ./...
 
+## test: run only the short tests
+.PHONY: testshort
+testshort:
+	go test -v -race -buildvcs -short ./...
+
 ## build: build the application
 .PHONY: build
 build:

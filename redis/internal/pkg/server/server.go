@@ -28,7 +28,6 @@ type Server struct {
 
 // New constructs a new Server with the specified port.
 func New(port string) (*Server, error) {
-	port = ":" + port
 	l, err := net.Listen("tcp", port)
 	if err != nil {
 		return nil, err
