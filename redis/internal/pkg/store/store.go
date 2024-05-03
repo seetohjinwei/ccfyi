@@ -2,6 +2,8 @@ package store
 
 import (
 	"sync"
+
+	"github.com/seetohjinwei/ccfyi/redis/pkg/delay"
 )
 
 type Store struct {
@@ -10,29 +12,38 @@ type Store struct {
 }
 
 func New() *Store {
-	return &Store{
+	ret := &Store{
 		mu:     sync.RWMutex{},
 		values: make(map[string]*Value),
 	}
+	return ret
 }
 
 func (s *Store) Get(key string) (Item, bool) {
+	// allows some race condition, but no data races
 	s.mu.RLock()
-	defer s.mu.RUnlock()
-	value, ok := s.values[key]
+	value := s.values[key]
+	s.mu.RUnlock()
+	item, ok := value.Item()
 	if !ok {
+		s.mu.Lock()
+		defer s.mu.Unlock()
+		delete(s.values, key)
 		return nil, false
 	}
-	item := value.Item()
 
 	return item, ok
 }
 
 func (s *Store) Set(key string, item Item) error {
+	return s.SetDelay(key, item, nil)
+}
+
+func (s *Store) SetDelay(key string, item Item, delay *delay.Delay) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.values[key] = NewValue(item)
+	s.values[key] = NewValue(item, delay)
 
 	return nil
 }

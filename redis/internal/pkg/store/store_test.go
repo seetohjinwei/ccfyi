@@ -2,6 +2,9 @@ package store
 
 import (
 	"testing"
+	"time"
+
+	"github.com/seetohjinwei/ccfyi/redis/pkg/delay"
 )
 
 func TestStoreGetSet(t *testing.T) {
@@ -75,4 +78,34 @@ func TestStoreGetSetConcurrent(t *testing.T) {
 	}()
 
 	close(wait)
+}
+
+func TestStoreSetDelay(t *testing.T) {
+	var key string
+	var value string
+	var actual string
+
+	store := New()
+
+	key = "key"
+	value = "value"
+
+	store.SetDelay(key, NewString(value), delay.NewDelay(time.Now().Add(50*time.Millisecond)))
+	item, ok := store.Get(key)
+	if !ok {
+		t.Errorf("expected to get the value before expiry")
+	}
+	actual, ok = item.Do("get", nil)
+	if !ok {
+		t.Errorf("expected to get the value before expiry")
+	}
+	if actual != value {
+		t.Errorf("expected %q, but got %q", value, actual)
+	}
+
+	time.Sleep(50 * time.Millisecond)
+	_, ok = store.Get(key)
+	if ok {
+		t.Errorf("expected to key to have expired")
+	}
 }
