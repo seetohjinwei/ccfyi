@@ -2,6 +2,7 @@ package integration_tests
 
 import (
 	"context"
+	"strconv"
 	"sync"
 	"testing"
 
@@ -19,12 +20,13 @@ func getSetHelper(t *testing.T, index int) {
 
 	ctx := context.Background()
 
-	err := cli.Set(ctx, "foo", "bar", 0).Err()
+	key := "foo" + strconv.Itoa(index)
+	err := cli.Set(ctx, key, "bar", 0).Err()
 	if err != nil {
 		t.Errorf("expected no err, but got %+v", err)
 	}
 
-	val, err := cli.Get(ctx, "foo").Result()
+	val, err := cli.Get(ctx, key).Result()
 	if err != nil {
 		t.Errorf("expected no err, but got %+v", err)
 	}
@@ -53,10 +55,10 @@ func TestGetSetIntegration(t *testing.T) {
 
 	for i := 0; i < 50; i++ {
 		wg.Add(1)
-		go func() {
+		go func(i int) {
 			getSetHelper(t, i)
 			wg.Done()
-		}()
+		}(i)
 	}
 
 	wg.Wait()

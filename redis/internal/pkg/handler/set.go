@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store"
+	"github.com/seetohjinwei/ccfyi/redis/pkg/delay"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
 
@@ -137,7 +138,11 @@ func Set(commands []string) (string, bool) {
 		return messages.NewNullBulkString().Serialise(), true
 	}
 
-	err = s.Set(key, store.NewString(value))
+	if args.expiry.IsZero() {
+		err = s.Set(key, store.NewString(value))
+	} else {
+		err = s.SetWithDelay(key, store.NewString(value), delay.NewDelay(args.expiry))
+	}
 	if err != nil {
 		return messages.GetError(err), true
 	}
@@ -153,5 +158,3 @@ func Set(commands []string) (string, bool) {
 	// key was set (without GET)
 	return messages.NewSimpleString("OK").Serialise(), true
 }
-
-// TODO: handle key expiration
