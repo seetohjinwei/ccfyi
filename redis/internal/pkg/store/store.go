@@ -5,29 +5,34 @@ import (
 )
 
 type Store struct {
-	mu    sync.RWMutex
-	items map[string]Item
+	mu     sync.RWMutex
+	values map[string]*Value
 }
 
 func New() *Store {
 	return &Store{
-		mu:    sync.RWMutex{},
-		items: make(map[string]Item),
+		mu:     sync.RWMutex{},
+		values: make(map[string]*Value),
 	}
 }
 
 func (s *Store) Get(key string) (Item, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	item, ok := s.items[key]
+	value, ok := s.values[key]
+	if !ok {
+		return nil, false
+	}
+	item := value.Item()
+
 	return item, ok
 }
 
-func (s *Store) Set(key string, value Item) error {
+func (s *Store) Set(key string, item Item) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.items[key] = value
+	s.values[key] = NewValue(item)
 
 	return nil
 }
