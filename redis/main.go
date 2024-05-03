@@ -7,11 +7,9 @@ import (
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/server"
 )
 
-func init() {
-	logging.Init()
-}
-
 func main() {
+	logging.Init()
+
 	// TODO:
 
 	// zerolog display the file + line

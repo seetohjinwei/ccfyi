@@ -23,6 +23,10 @@ func (r *Integer) Serialise() string {
 	return fmt.Sprintf(":%s%d\r\n", sign, value)
 }
 
+func NewInteger(value int64) *Integer {
+	return &Integer{value: value}
+}
+
 func deserialiseInteger(message string) (*Integer, string, error) {
 	// :[<+|->]<value>\r\n
 

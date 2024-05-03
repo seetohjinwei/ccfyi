@@ -11,12 +11,31 @@ import (
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/server"
 )
 
-func getSetHelper(t *testing.T, index int) {
-	cli := redis.NewClient(&redis.Options{
+func setup(t testing.TB) func() {
+	router, err := server.New("localhost:6379")
+	if err != nil {
+		t.Errorf("error init server: %v", err)
+	}
+	go func() {
+		// ignore errors
+		router.Serve()
+	}()
+
+	return func() {
+		router.Stop()
+	}
+}
+
+func getClient() *redis.Client {
+	return redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
+}
+
+func getSetHelper(t *testing.T, index int) {
+	cli := getClient()
 
 	ctx := context.Background()
 
@@ -33,6 +52,8 @@ func getSetHelper(t *testing.T, index int) {
 	if val != "bar" {
 		t.Errorf("expected %q, but got %q", "bar", val)
 	}
+
+	cli.Close()
 }
 
 func TestGetSetIntegration(t *testing.T) {
@@ -40,20 +61,13 @@ func TestGetSetIntegration(t *testing.T) {
 		t.Skip("skipping integration")
 	}
 
-	router, err := server.New("localhost:6379")
-	if err != nil {
-		t.Errorf("error init server: %v", err)
-	}
-	go func() {
-		err := router.Serve()
-		if err != nil {
-			t.Errorf("error serve error: %v", err)
-		}
-	}()
+	teardown := setup(t)
+	defer teardown()
 
 	var wg sync.WaitGroup
 
-	for i := 0; i < 50; i++ {
+	const clients = 50
+	for i := 0; i < clients; i++ {
 		wg.Add(1)
 		go func(i int) {
 			getSetHelper(t, i)
@@ -62,4 +76,68 @@ func TestGetSetIntegration(t *testing.T) {
 	}
 
 	wg.Wait()
+}
+
+func TestPingIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration")
+	}
+
+	teardown := setup(t)
+	defer teardown()
+
+	cli := getClient()
+
+	status := cli.Ping(context.Background())
+	v, err := status.Result()
+
+	if err != nil {
+		t.Errorf("expected no err, but got %v", err)
+	}
+	if v != "PONG" {
+		t.Errorf("expected %q, but got %q", "PONG", v)
+	}
+
+	cli.Close()
+}
+
+func TestExistsIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration")
+	}
+
+	teardown := setup(t)
+	defer teardown()
+
+	cli := getClient()
+	ctx := context.Background()
+
+	c := cli.Exists(ctx, "k")
+	v, err := c.Result()
+	if err != nil {
+		t.Errorf("expected no err, but got %v", err)
+	}
+	if v != 0 {
+		t.Errorf("expected %v, but got %v", 0, v)
+	}
+
+	cli.Set(ctx, "k", "v", 0)
+	c = cli.Exists(ctx, "k")
+	v, err = c.Result()
+	if err != nil {
+		t.Errorf("expected no err, but got %v", err)
+	}
+	if v != 1 {
+		t.Errorf("expected %v, but got %v", 1, v)
+	}
+	c = cli.Exists(ctx, "k", "k")
+	v, err = c.Result()
+	if err != nil {
+		t.Errorf("expected no err, but got %v", err)
+	}
+	if v != 2 {
+		t.Errorf("expected %v, but got %v", 2, v)
+	}
+
+	cli.Close()
 }

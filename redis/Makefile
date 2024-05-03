@@ -25,12 +25,12 @@ audit:
 ## test: run all tests
 .PHONY: test
 test:
-	go test -v -race -buildvcs ./...
+	LOG=ERROR go test -v -race -buildvcs ./...
 
 ## test: run only the short tests
 .PHONY: testshort
 testshort:
-	go test -v -race -buildvcs -short ./...
+	LOG=ERROR go test -v -race -buildvcs -short ./...
 
 ## build: build the application
 .PHONY: build
@@ -40,7 +40,7 @@ build:
 ## run: run the application
 .PHONY: run
 run: build
-	$(BUILD_DIR)$(NAME)
+	LOG=TRACE $(BUILD_DIR)$(NAME)
 
 .PHONE: clean
 clean:

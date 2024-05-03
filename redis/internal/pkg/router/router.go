@@ -24,11 +24,13 @@ func New(routes []Route) *Router {
 }
 
 func NewDefault() *Router {
+	// TODO: make this a map instead
 	routes := []Route{
 		handler.Ping,
 		handler.Echo,
 		handler.Get,
 		handler.Set,
+		handler.Exists,
 	}
 
 	return New(routes)
