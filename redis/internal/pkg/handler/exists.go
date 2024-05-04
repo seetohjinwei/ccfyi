@@ -16,8 +16,10 @@ func exists(s *store.Store, cache map[string]bool, key string) bool {
 	return has
 }
 
+const ExistsCommand = "EXISTS"
+
 func Exists(commands []string) (string, bool) {
-	if len(commands) == 0 || !commandsStartWith(commands, []string{"EXISTS"}) {
+	if len(commands) == 0 || !commandsStartWith(commands, []string{ExistsCommand}) {
 		return "", false
 	}
 

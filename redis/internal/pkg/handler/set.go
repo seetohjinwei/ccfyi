@@ -98,8 +98,10 @@ func parseSetArguments(commands []string) (setArgs, error) {
 	return args, nil
 }
 
+const SetCommand = "SET"
+
 func Set(commands []string) (string, bool) {
-	if len(commands) == 0 || !commandsStartWith(commands, []string{"SET"}) {
+	if len(commands) == 0 || !commandsStartWith(commands, []string{SetCommand}) {
 		return "", false
 	}
 

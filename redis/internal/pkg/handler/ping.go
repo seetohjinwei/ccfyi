@@ -4,8 +4,10 @@ import (
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
 
+const PingCommand = "PING"
+
 func Ping(commands []string) (string, bool) {
-	if len(commands) == 0 || !commandsStartWith(commands, []string{"PING"}) {
+	if len(commands) == 0 || !commandsStartWith(commands, []string{PingCommand}) {
 		return "", false
 	}
 

@@ -7,8 +7,10 @@ import (
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
 
+const GetCommand = "GET"
+
 func Get(commands []string) (string, bool) {
-	if len(commands) == 0 || !commandsStartWith(commands, []string{"GET"}) {
+	if len(commands) == 0 || !commandsStartWith(commands, []string{GetCommand}) {
 		return "", false
 	}
 

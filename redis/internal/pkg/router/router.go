@@ -2,6 +2,7 @@ package router
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/rs/zerolog/log"
 
@@ -15,23 +16,31 @@ var BodyParsingErr string = messages.GetErrorString("request body could not be p
 type Route func(commands []string) (string, bool)
 
 type Router struct {
-	handlers []Route
+	handlers map[string]Route
 }
 
-func New(routes []Route) *Router {
-	router := &Router{routes}
+func New(routes map[string]Route) *Router {
+	router := &Router{
+		handlers: make(map[string]Route),
+	}
+
+	for cmd, r := range routes {
+		router.AddRoute(cmd, r)
+	}
+
 	return router
 }
 
 func NewDefault() *Router {
-	// TODO: make this a map instead
-	routes := []Route{
-		handler.Ping,
-		handler.Echo,
-		handler.Get,
-		handler.Set,
-		handler.Exists,
+	routes := map[string]Route{
+		handler.PingCommand:   handler.Ping,
+		handler.EchoCommand:   handler.Echo,
+		handler.GetCommand:    handler.Get,
+		handler.SetCommand:    handler.Set,
+		handler.ExistsCommand: handler.Exists,
 	}
+
+	// for routes like ACL, use sub-handlers
 
 	return New(routes)
 }
@@ -73,12 +82,18 @@ func (r *Router) getCommands(request messages.Message) ([]string, error) {
 	return commands, nil
 }
 
-func (r *Router) AddRoute(route Route) {
-	r.handlers = append(r.handlers, route)
+func (r *Router) AddRoute(command string, route Route) {
+	r.handlers[strings.ToLower(command)] = route
 }
 
 func (r *Router) route(commands []string) (string, bool) {
-	for _, route := range r.handlers {
+	if len(commands) == 0 {
+		return "", false
+	}
+
+	command := strings.ToLower(commands[0])
+	route, ok := r.handlers[command]
+	if ok {
 		resp, ok := route(commands)
 		if ok {
 			log.Info().Strs("commands", commands).Str("resp", resp).Msg("matched route")
