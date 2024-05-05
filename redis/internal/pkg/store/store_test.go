@@ -107,7 +107,7 @@ func TestStoreSetDelay(t *testing.T) {
 	if !ok {
 		t.Errorf("expected to get the value before expiry")
 	}
-	actual, ok = item.Do("get", nil)
+	actual, ok = item.Get()
 	if !ok {
 		t.Errorf("expected to get the value before expiry")
 	}

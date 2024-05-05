@@ -27,7 +27,7 @@ func Get(commands []string) (string, bool) {
 		return messages.NewNullBulkString().Serialise(), true
 	}
 
-	val, ok := item.Do("get", nil)
+	val, ok := item.Get()
 	if !ok {
 		log.Error().Msg("get does not exist!")
 		return internalServerError()

@@ -126,7 +126,7 @@ func Set(commands []string) (string, bool) {
 		var ok bool
 		item, exists = s.Get(key)
 		if exists {
-			oldKey, ok = item.Do("get", nil)
+			oldKey, ok = item.Get()
 			if !ok {
 				err := errors.New("item was not a string")
 				log.Error().Err(err).Msg("getDuration")

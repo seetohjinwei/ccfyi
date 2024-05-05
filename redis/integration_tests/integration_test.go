@@ -36,6 +36,7 @@ func getClient() *redis.Client {
 
 func getSetHelper(t *testing.T, index int) {
 	cli := getClient()
+	defer cli.Close()
 
 	ctx := context.Background()
 
@@ -52,8 +53,6 @@ func getSetHelper(t *testing.T, index int) {
 	if val != "bar" {
 		t.Errorf("expected %q, but got %q", "bar", val)
 	}
-
-	cli.Close()
 }
 
 func TestGetSetIntegration(t *testing.T) {
@@ -87,6 +86,7 @@ func TestPingIntegration(t *testing.T) {
 	defer teardown()
 
 	cli := getClient()
+	defer cli.Close()
 
 	status := cli.Ping(context.Background())
 	v, err := status.Result()
@@ -97,8 +97,6 @@ func TestPingIntegration(t *testing.T) {
 	if v != "PONG" {
 		t.Errorf("expected %q, but got %q", "PONG", v)
 	}
-
-	cli.Close()
 }
 
 func TestExistsIntegration(t *testing.T) {
@@ -110,6 +108,7 @@ func TestExistsIntegration(t *testing.T) {
 	defer teardown()
 
 	cli := getClient()
+	defer cli.Close()
 	ctx := context.Background()
 
 	c := cli.Exists(ctx, "k")
@@ -138,6 +137,19 @@ func TestExistsIntegration(t *testing.T) {
 	if v != 2 {
 		t.Errorf("expected %v, but got %v", 2, v)
 	}
+}
 
-	cli.Close()
+func TestDelIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration")
+	}
+
+	teardown := setup(t)
+	defer teardown()
+
+	cli := getClient()
+	defer cli.Close()
+	// ctx := context.Background()
+
+	// TODO:
 }

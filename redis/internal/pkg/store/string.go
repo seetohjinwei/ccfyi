@@ -1,29 +1,90 @@
 package store
 
 import (
-	"github.com/rs/zerolog/log"
+	"strconv"
+	"sync"
+)
+
+type stringType int
+
+const (
+	stringUnknown stringType = iota
+	stringString
+	stringInteger
 )
 
 type String struct {
-	str string
+	mu         sync.RWMutex
+	str        string
+	integer    int64
+	actualType stringType
+
+	// String is either a string or an integer. (according to redis specs)
+	// but "Redis stores integers in their integer representation".
+
+	*AbstractItem
 }
 
 func NewString(str string) *String {
-	return &String{str: str}
-}
-
-func (s *String) Do(command string, args []string) (string, bool) {
-	switch command {
-	case "get":
-		if len(args) != 0 {
-			log.Error().Strs("args", args).Int("args len", len(args)).Msg("store.string wrong args len")
-		}
-		return s.get(), true
+	ret := &String{
+		mu:         sync.RWMutex{},
+		str:        "",
+		integer:    int64(0),
+		actualType: stringUnknown,
 	}
 
-	return "", false
+	integer, err := strconv.ParseInt(str, 10, 64)
+	if err == nil {
+		ret.integer = integer
+		ret.actualType = stringInteger
+	} else {
+		ret.str = str
+		ret.actualType = stringString
+	}
+
+	if ret.actualType == stringUnknown {
+		panic("ret.ActualType == stringUnknown")
+	}
+
+	return ret
 }
 
-func (s *String) get() string {
-	return s.str
+func (s *String) Get() (string, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	switch s.actualType {
+	case stringString:
+		return s.str, true
+	case stringInteger:
+		return strconv.FormatInt(s.integer, 10), true
+	}
+
+	panic("ret.ActualType == stringUnknown")
+}
+
+func (s *String) Incr() (int64, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.actualType != stringInteger {
+		return 0, false
+	}
+
+	s.integer++
+
+	return s.integer, true
+}
+
+func (s *String) Decr() (int64, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.actualType != stringInteger {
+		return 0, false
+	}
+
+	s.integer--
+
+	return s.integer, true
 }

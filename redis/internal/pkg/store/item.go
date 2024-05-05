@@ -1,5 +1,7 @@
 package store
 
 type Item interface {
-	Do(command string, args []string) (string, bool)
+	Get() (string, bool)
+	Incr() (int64, bool)
+	Decr() (int64, bool)
 }
