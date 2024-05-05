@@ -40,7 +40,11 @@ func NewDefault() *Router {
 		handler.ExistsCommand: handler.Exists,
 		handler.IncrCommand:   handler.Incr,
 		handler.DecrCommand:   handler.Decr,
-		// TODO: LPUSH, RPUSH, SAVE
+		handler.LPushCommand:  handler.LPush,
+		handler.RPushCommand:  handler.RPush,
+		handler.LLenCommand:   handler.LLen,
+		handler.LRangeCommand: handler.LRange,
+		// TODO: SAVE
 		handler.DelCommand: handler.Del, // TODO: not done (do after those)
 	}
 

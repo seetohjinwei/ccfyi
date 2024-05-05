@@ -169,6 +169,46 @@ func TestIncrDecrIntegration(t *testing.T) {
 	HasError(t, c.Err())
 }
 
+func TestListIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration")
+	}
+
+	teardown := setup(t)
+	defer teardown()
+
+	cli := getClient()
+	defer cli.Close()
+	ctx := context.Background()
+
+	c := cli.LPush(ctx, "k", "c", "b", "a")
+	NoError(t, c.Err())
+	Equal(t, V(c.Result()), V(int64(3), nil))
+	c = cli.RPush(ctx, "k", "d", "e", "f")
+	NoError(t, c.Err())
+	Equal(t, V(c.Result()), V(int64(6), nil))
+	c = cli.LLen(ctx, "k")
+	NoError(t, c.Err())
+	Equal(t, V(c.Result()), V(int64(6), nil))
+	r := cli.LRange(ctx, "k", 0, 5)
+	NoError(t, r.Err())
+	Equal(t, V(r.Result()), V([]string{"a", "b", "c", "d", "e", "f"}, nil))
+
+	c = cli.LLen(ctx, "dontexist")
+	NoError(t, c.Err())
+	Equal(t, V(c.Result()), V(int64(0), nil))
+	c = cli.Exists(ctx, "dontexist")
+	NoError(t, c.Err())
+	Equal(t, V(c.Result()), V(int64(0), nil))
+
+	r = cli.LRange(ctx, "dontexist", 0, 0)
+	NoError(t, r.Err())
+	Equal(t, V(r.Result()), V([]string{}, nil))
+	c = cli.Exists(ctx, "dontexist")
+	NoError(t, c.Err())
+	Equal(t, V(c.Result()), V(int64(0), nil))
+}
+
 func TestDelIntegration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration")

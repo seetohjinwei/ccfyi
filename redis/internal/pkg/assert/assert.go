@@ -22,7 +22,10 @@ func Equal(t testing.TB, actual, expected []interface{}) {
 		a := actual[i]
 
 		if !reflect.DeepEqual(e, a) {
-			t.Errorf("expected %+v (%v), but got %+v (%v)", e, reflect.TypeOf(e), a, reflect.TypeOf(a))
+			if reflect.TypeOf(e) != reflect.TypeOf(a) {
+				t.Errorf("expected %+v (%v), but got %+v (%v) - type mismatch!", e, reflect.TypeOf(e), a, reflect.TypeOf(a))
+			}
+			t.Errorf("expected %+v, but got %+v", e, a)
 		}
 	}
 }

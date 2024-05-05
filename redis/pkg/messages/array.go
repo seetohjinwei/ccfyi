@@ -37,6 +37,23 @@ func (r *Array) GetCommands() ([]string, error) {
 	return ret, nil
 }
 
+func NewArrayBulkString(strs []string) *Array {
+	items := make([]Message, len(strs))
+	for i, s := range strs {
+		items[i] = NewBulkString(s)
+	}
+
+	return NewArray(items)
+}
+
+func NewArray(items []Message) *Array {
+	ret := &Array{
+		len:   uint(len(items)),
+		items: items,
+	}
+	return ret
+}
+
 func deserialiseArray(message string) (*Array, string, error) {
 	// *<number-of-elements>\r\n<element-1>...<element-n>
 
