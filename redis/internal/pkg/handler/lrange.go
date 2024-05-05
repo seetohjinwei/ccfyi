@@ -21,10 +21,6 @@ func LRange(commands []string) (string, bool) {
 
 	s := store.GetSingleton()
 	key := commands[1]
-	item, ok := s.Get(key)
-	if !ok {
-		return messages.NewArray([]messages.Message{}).Serialise(), true
-	}
 
 	start, err := strconv.Atoi(commands[2])
 	if err != nil {
@@ -37,6 +33,11 @@ func LRange(commands []string) (string, bool) {
 		msg := "value is not an integer or out of range"
 		log.Error().Any("stop", commands[3]).Msg(msg)
 		return messages.GetErrorString(msg), true
+	}
+
+	item, ok := s.Get(key)
+	if !ok {
+		return messages.NewArray([]messages.Message{}).Serialise(), true
 	}
 
 	ret, ok := item.LRange(start, stop)
