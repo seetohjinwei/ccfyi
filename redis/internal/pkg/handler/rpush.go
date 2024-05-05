@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/rs/zerolog/log"
+
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )

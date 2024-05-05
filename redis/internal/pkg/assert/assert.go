@@ -3,6 +3,8 @@ package assert
 import (
 	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func V(v ...interface{}) []interface{} {
@@ -21,11 +23,12 @@ func Equal(t testing.TB, actual, expected []interface{}) {
 		e := expected[i]
 		a := actual[i]
 
-		if !reflect.DeepEqual(e, a) {
+		if !cmp.Equal(e, a) {
 			if reflect.TypeOf(e) != reflect.TypeOf(a) {
 				t.Errorf("expected %+v (%v), but got %+v (%v) - type mismatch!", e, reflect.TypeOf(e), a, reflect.TypeOf(a))
+			} else {
+				t.Errorf("expected %+v, but got %+v", e, a)
 			}
-			t.Errorf("expected %+v, but got %+v", e, a)
 		}
 	}
 }

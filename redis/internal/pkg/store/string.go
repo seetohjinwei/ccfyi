@@ -49,6 +49,14 @@ func NewString(str string) *String {
 	return ret
 }
 
+const stringEncoding = 0
+
+func (s *String) Serialise() string {
+
+	// TODO:
+	return ""
+}
+
 func (s *String) Get() (string, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

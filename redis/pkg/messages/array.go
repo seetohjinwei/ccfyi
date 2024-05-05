@@ -24,7 +24,7 @@ func (r *Array) Serialise() string {
 }
 
 // GetCommands gets the commands from an Array.
-// The array must only contain SimpleString.
+// The array must only contain BulkString.
 func (r *Array) GetCommands() ([]string, error) {
 	ret := make([]string, r.len)
 	for i, item := range r.items {

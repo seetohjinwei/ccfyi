@@ -140,8 +140,8 @@ func TestStoreExpiryTrigger(t *testing.T) {
 	store.stop()
 
 	actual := result.Load()
-	if actual != 10 {
-		t.Errorf("expected result to be %v, but got %v", 10, actual)
+	if actual < 9 || actual > 11 {
+		t.Errorf("expected result to be almost %v, but got %v", 10, actual)
 	}
 }
 

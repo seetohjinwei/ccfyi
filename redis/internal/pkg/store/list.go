@@ -22,6 +22,15 @@ func NewList() *List {
 	return ret
 }
 
+const listEncoding = 1
+
+func (s *List) Serialise() string {
+
+	// TODO:
+
+	return ""
+}
+
 func (l *List) LPush(strs []string) (int64, bool) {
 	for _, s := range strs {
 		l.list.PushFront(s)
