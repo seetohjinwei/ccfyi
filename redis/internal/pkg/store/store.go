@@ -5,7 +5,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rs/zerolog/log"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/delay"
 )
 
@@ -110,7 +109,8 @@ func (s *Store) cleanKeys() {
 
 			value, ok := s.values[key]
 			if !ok {
-				log.Error().Str("key", key).Msg("key was from s.expirySet, but not in s.values")
+				// key has been removed in a previous iteration
+				continue
 			}
 			if value.delay.HasExpired() {
 				expiryCount++

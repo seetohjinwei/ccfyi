@@ -170,10 +170,11 @@ func TestStoreCleanKeys(t *testing.T) {
 		t.Errorf("expected store to contain the values before cleaning")
 	}
 	store.cleanKeys()
-	if len(store.values) == 22 {
-		// it checks 20 keys (19 have not expired; 3 have expired => must check at least one expired key)
-		t.Errorf("expected store to have cleaned some keys, got %v instead", len(store.values))
-	}
+
+	// if len(store.values) == 22 {
+	// 	// it checks 20 keys (19 have not expired; 3 have expired => must check at least one expired key) <- not true, because it can check the same key multiple times
+	// 	t.Errorf("expected store to have cleaned some keys, got %v instead", len(store.values))
+	// }
 }
 
 func TestMapRandomness(t *testing.T) {
