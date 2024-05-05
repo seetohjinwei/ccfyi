@@ -3,6 +3,7 @@ module github.com/seetohjinwei/ccfyi/redis
 go 1.22.2
 
 require (
+	github.com/gammazero/deque v0.2.1
 	github.com/redis/go-redis/v9 v9.5.1
 	github.com/rs/zerolog v1.32.0
 )

@@ -9,7 +9,7 @@ func V(v ...interface{}) []interface{} {
 	return v
 }
 
-func Equal(t testing.TB, expected, actual []interface{}) {
+func Equal(t testing.TB, actual, expected []interface{}) {
 	t.Helper()
 
 	if len(expected) != len(actual) {
