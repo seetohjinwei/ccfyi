@@ -8,10 +8,15 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
+	. "github.com/seetohjinwei/ccfyi/redis/internal/pkg/assert"
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/server"
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store"
 )
 
 func setup(t testing.TB) func() {
+	store.ResetSingleton()
+
+	// TODO: instead of a global singleton, let the store be associated with a server / router?
 	router, err := server.New("localhost:6379")
 	if err != nil {
 		t.Errorf("error init server: %v", err)
@@ -137,6 +142,31 @@ func TestExistsIntegration(t *testing.T) {
 	if v != 2 {
 		t.Errorf("expected %v, but got %v", 2, v)
 	}
+}
+
+func TestIncrDecrIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration")
+	}
+
+	teardown := setup(t)
+	defer teardown()
+
+	cli := getClient()
+	defer cli.Close()
+	ctx := context.Background()
+
+	c := cli.Incr(ctx, "k")
+	NoError(t, c.Err())
+	Equal(t, V(c.Result()), V(int64(1), nil))
+	c = cli.Decr(ctx, "k")
+	NoError(t, c.Err())
+	Equal(t, V(c.Result()), V(int64(0), nil))
+
+	cli.Set(ctx, "k", "notaninteger", 0)
+	c = cli.Incr(ctx, "k")
+	t.Logf("%v", c.Err())
+	HasError(t, c.Err())
 }
 
 func TestDelIntegration(t *testing.T) {

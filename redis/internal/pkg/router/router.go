@@ -38,9 +38,10 @@ func NewDefault() *Router {
 		handler.GetCommand:    handler.Get,
 		handler.SetCommand:    handler.Set,
 		handler.ExistsCommand: handler.Exists,
-		// TODO:
-		// INCR, DECR, LPUSH, RPUSH, SAVE
-		handler.DelCommand: handler.Del,
+		handler.IncrCommand:   handler.Incr,
+		handler.DecrCommand:   handler.Decr,
+		// TODO: LPUSH, RPUSH, SAVE
+		handler.DelCommand: handler.Del, // TODO: not done (do after those)
 	}
 
 	// for routes like ACL, use sub-handlers

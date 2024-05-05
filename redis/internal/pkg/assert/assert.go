@@ -10,6 +10,8 @@ func V(v ...interface{}) []interface{} {
 }
 
 func Equal(t testing.TB, expected, actual []interface{}) {
+	t.Helper()
+
 	if len(expected) != len(actual) {
 		// something wrong with the test case
 		t.Errorf("expected len(expected) == %d, but got len(actual) == %d", len(expected), len(actual))
@@ -25,7 +27,19 @@ func Equal(t testing.TB, expected, actual []interface{}) {
 	}
 }
 
+func HasError(t testing.TB, err error) {
+	t.Helper()
+
+	if err != nil {
+		return
+	}
+
+	t.Errorf("expected err, but got no error")
+}
+
 func NoError(t testing.TB, err error) {
+	t.Helper()
+
 	if err == nil {
 		return
 	}
