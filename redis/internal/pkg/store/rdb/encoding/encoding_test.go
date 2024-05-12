@@ -55,3 +55,18 @@ func TestEncodeInteger(t *testing.T) {
 		EqualO(t, v, n)
 	}
 }
+
+func TestEncodeList(t *testing.T) {
+	tests := [][]string{
+		[]string{},
+		[]string{"", ""},
+		[]string{"123", "456"},
+		[]string{"redislite", "etilsider"},
+	}
+
+	for _, strs := range tests {
+		a, _, err := DecodeList(EncodeList(strs))
+		NoError(t, err)
+		EqualO(t, a, strs)
+	}
+}

@@ -29,3 +29,12 @@ func TestListLRange(t *testing.T) {
 	Equal(t, V(list.LRange(-1, -1)), V([]string{"c"}, true))
 	Equal(t, V(list.LRange(1, 0)), V([]string{}, true))
 }
+
+func TestListSerialise(t *testing.T) {
+	l1 := NewList()
+	Equal(t, V(l1.RPush([]string{"", "1", "2"})), V(int64(3), true))
+
+	NoPanic(t, func() {
+		l1.Serialise()
+	})
+}

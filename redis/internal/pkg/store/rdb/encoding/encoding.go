@@ -1,6 +1,7 @@
 package encoding
 
 import (
+	"bytes"
 	"errors"
 
 	"github.com/rs/zerolog/log"
@@ -151,4 +152,39 @@ func DecodeInteger(b []byte) (int64, []byte, error) {
 	log.Error().Hex("bytes", b).Msg("cannot decode integer")
 
 	return 0, b, errors.New("cannot decode integer")
+}
+
+func EncodeList(strs []string) []byte {
+	buf := bytes.Buffer{}
+
+	buf.Write(EncodeLength(uint(len(strs))))
+
+	for _, s := range strs {
+		buf.Write(EncodeString(s))
+	}
+
+	return buf.Bytes()
+}
+
+func DecodeList(b []byte) ([]string, []byte, error) {
+	original := b
+
+	length, b, err := DecodeLength(original)
+	if err != nil {
+		return nil, original, err
+	}
+
+	ret := make([]string, length)
+
+	for i := uint(0); i < length; i++ {
+		var s string
+		s, b, err = DecodeString(b)
+		if err != nil {
+			return nil, original, err
+		}
+
+		ret[i] = s
+	}
+
+	return ret, b, nil
 }

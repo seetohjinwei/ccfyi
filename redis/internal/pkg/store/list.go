@@ -5,6 +5,8 @@ import (
 
 	"github.com/gammazero/deque"
 	"github.com/rs/zerolog/log"
+
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/rdb/encoding"
 )
 
 type List struct {
@@ -25,10 +27,15 @@ func NewList() *List {
 const listEncoding = 1
 
 func (s *List) Serialise() []byte {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
-	// TODO: Serialise
+	list := make([]string, s.list.Len())
+	for i := 0; i < s.list.Len(); i++ {
+		list[i] = s.list.At(i)
+	}
 
-	return nil
+	return encoding.EncodeList(list)
 }
 
 func (l *List) LPush(strs []string) (int64, bool) {
