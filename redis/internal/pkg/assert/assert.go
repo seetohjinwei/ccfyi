@@ -88,3 +88,15 @@ func IsFalse(t testing.TB, value bool, format string, args ...any) {
 
 	IsTrue(t, !value, format, args...)
 }
+
+func NoPanic(t testing.TB, f func()) {
+	t.Helper()
+
+	defer func() {
+		if ret := recover(); ret != nil {
+			t.Errorf("expected no panic, but got %+v", ret)
+		}
+	}()
+
+	f()
+}

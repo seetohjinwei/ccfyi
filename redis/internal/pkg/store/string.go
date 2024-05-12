@@ -3,6 +3,8 @@ package store
 import (
 	"strconv"
 	"sync"
+
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/rdb/encoding"
 )
 
 type stringType int
@@ -51,10 +53,18 @@ func NewString(str string) *String {
 
 const stringEncoding = 0
 
-func (s *String) Serialise() string {
+func (s *String) Serialise() []byte {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
-	// TODO:
-	return ""
+	switch s.actualType {
+	case stringString:
+		return encoding.EncodeString(s.str)
+	case stringInteger:
+		return encoding.EncodeInteger(s.integer)
+	}
+
+	panic("ret.ActualType == stringUnknown")
 }
 
 func (s *String) Get() (string, bool) {

@@ -4,23 +4,33 @@ import (
 	"bytes"
 
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store"
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/rdb/encoding"
 )
 
-func saveHeader(buf bytes.Buffer) {
+type SaveBuffer struct {
+	bytes.Buffer
+}
+
+func (buf *SaveBuffer) saveHeader() {
 	buf.WriteString(magicString)
 }
 
-func saveValue(buf bytes.Buffer, k string, v *store.Value) {
-	// TODO: utilise string encoding
+func (buf *SaveBuffer) saveValue(k string, v *store.Value) {
+	item, ok := v.Item()
+	if !ok {
+		return
+	}
+
+	buf.Write(encoding.EncodeString(k))
+	buf.Write(item.Serialise())
 }
 
-func Save(values map[string]*store.Value) []byte {
-	buf := bytes.Buffer{}
-
-	saveHeader(buf)
+// Make sure to lock the map!
+func (buf *SaveBuffer) Save(values map[string]*store.Value) []byte {
+	buf.saveHeader()
 
 	for k, v := range values {
-		saveValue(buf, k, v)
+		buf.saveValue(k, v)
 	}
 
 	return buf.Bytes()

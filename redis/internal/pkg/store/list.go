@@ -24,11 +24,11 @@ func NewList() *List {
 
 const listEncoding = 1
 
-func (s *List) Serialise() string {
+func (s *List) Serialise() []byte {
 
-	// TODO:
+	// TODO: Serialise
 
-	return ""
+	return nil
 }
 
 func (l *List) LPush(strs []string) (int64, bool) {

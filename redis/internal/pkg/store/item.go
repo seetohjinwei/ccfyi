@@ -1,7 +1,7 @@
 package store
 
 type Item interface {
-	Serialise() string
+	Serialise() []byte
 	Get() (string, bool)
 	Incr() (int64, bool)
 	Decr() (int64, bool)

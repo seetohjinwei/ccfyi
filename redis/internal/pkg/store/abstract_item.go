@@ -2,6 +2,8 @@ package store
 
 type AbstractItem struct{}
 
+// don't define `Serialise` (all structs should define this)
+
 func (b *AbstractItem) Get() (string, bool) {
 	return "", false
 }

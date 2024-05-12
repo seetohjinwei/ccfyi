@@ -20,3 +20,10 @@ func TestString(t *testing.T) {
 
 	Equal(t, V(s.Get()), V("1", true))
 }
+
+func TestStringSerialise(t *testing.T) {
+	s1 := NewString("0")
+	NoPanic(t, func() {
+		s1.Serialise()
+	})
+}

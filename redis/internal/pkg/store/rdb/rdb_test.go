@@ -8,10 +8,8 @@ import (
 )
 
 func TestSave(t *testing.T) {
-	// Equal(t, V(Save(nil)), V([]byte(nil)))
-	// buf := Save(nil)
-	// t.Logf(string(buf))
-	// t.Fail()
+	buf := SaveBuffer{}
+	Equal(t, V(buf.Save(nil)), V([]byte("REDISLITE")))
 }
 
 func TestLoad(t *testing.T) {
