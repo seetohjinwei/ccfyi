@@ -1,6 +1,10 @@
 package delay
 
-import "time"
+import (
+	"time"
+
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/rdb/encoding"
+)
 
 type Delay struct {
 	expiry time.Time
@@ -19,4 +23,8 @@ func (d *Delay) HasExpired() bool {
 	}
 
 	return time.Now().After(d.expiry)
+}
+
+func (d *Delay) Serialise() []byte {
+	return encoding.EncodeInteger(d.expiry.UnixMicro())
 }

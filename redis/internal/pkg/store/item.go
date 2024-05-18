@@ -1,6 +1,11 @@
 package store
 
+import (
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/rdb/encoding"
+)
+
 type Item interface {
+	ValueType() encoding.ValueType
 	Serialise() []byte
 	Get() (string, bool)
 	Incr() (int64, bool)

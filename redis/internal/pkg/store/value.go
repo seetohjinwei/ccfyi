@@ -1,6 +1,8 @@
 package store
 
 import (
+	"bytes"
+
 	"github.com/seetohjinwei/ccfyi/redis/pkg/delay"
 )
 
@@ -28,4 +30,18 @@ func (v *Value) Item() (Item, bool) {
 		return v.item, false
 	}
 	return v.item, true
+}
+
+func (v *Value) SerialiseExpiry() []byte {
+	if v.delay.HasExpired() {
+		return nil
+	}
+
+	buf := bytes.Buffer{}
+
+	// FD <=> has delay (micro seconds since Unix epoch)
+	buf.WriteString("FD")
+	buf.Write(v.delay.Serialise())
+
+	return buf.Bytes()
 }

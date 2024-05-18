@@ -7,6 +7,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type ValueType byte
+
+const (
+	// https://rdb.fnordig.de/file_format.html#value-type
+	ValueString ValueType = '0'
+	ValueList   ValueType = '1'
+)
+
 func EncodeLength(length uint) []byte {
 	if length <= 63 {
 		// MSB == 00

@@ -24,15 +24,17 @@ func NewList() *List {
 	return ret
 }
 
-const listEncoding = 1
+func (l *List) ValueType() encoding.ValueType {
+	return encoding.ValueList
+}
 
-func (s *List) Serialise() []byte {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+func (l *List) Serialise() []byte {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
 
-	list := make([]string, s.list.Len())
-	for i := 0; i < s.list.Len(); i++ {
-		list[i] = s.list.At(i)
+	list := make([]string, l.list.Len())
+	for i := 0; i < l.list.Len(); i++ {
+		list[i] = l.list.At(i)
 	}
 
 	return encoding.EncodeList(list)

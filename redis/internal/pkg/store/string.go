@@ -51,7 +51,9 @@ func NewString(str string) *String {
 	return ret
 }
 
-const stringEncoding = 0
+func (s *String) ValueType() encoding.ValueType {
+	return encoding.ValueString
+}
 
 func (s *String) Serialise() []byte {
 	s.mu.RLock()
