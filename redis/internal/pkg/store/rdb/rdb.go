@@ -37,9 +37,13 @@ func (buf *SaveBuffer) value(k string, v *store.Value) {
 	buf.Write(item.Serialise())
 }
 
+func (buf *SaveBuffer) checksum() {
+	checksum := encoding.GenerateChecksum(buf.Bytes())
+	buf.Write(checksum)
+}
+
 func (buf *SaveBuffer) eof() {
 	buf.WriteString("FF")
-	// TODO: CRC64 checksum
 }
 
 // Make sure to lock the map!
@@ -51,20 +55,23 @@ func (buf *SaveBuffer) Save(values map[string]*store.Value) []byte {
 	}
 
 	buf.eof()
+	buf.checksum()
 
 	return buf.Bytes()
 }
 
 // zero value is NOT usable.
 type LoadBuffer struct {
-	b   []byte
-	ret map[string]*store.Value
+	b    []byte
+	full []byte
+	ret  map[string]*store.Value
 }
 
 func NewLoadBuffer(b []byte) LoadBuffer {
 	return LoadBuffer{
-		b:   b,
-		ret: map[string]*store.Value{},
+		full: b,
+		b:    b,
+		ret:  map[string]*store.Value{},
 	}
 }
 
@@ -167,11 +174,18 @@ func (buf *LoadBuffer) values() error {
 	}
 }
 
+func (buf *LoadBuffer) checksum() bool {
+	end := len(buf.full) - len(buf.b)
+	return encoding.VerifyChecksum(buf.full[:end], buf.b)
+}
+
 func (buf *LoadBuffer) eof() (done bool, err error) {
 	var found bool
 	buf.b, found = bytes.CutPrefix(buf.b, []byte("FF"))
 	if found {
-		// TODO: check the checksum here
+		if !buf.checksum() {
+			return true, errors.New("checksum did not match")
+		}
 		return true, nil
 	}
 	return false, nil
