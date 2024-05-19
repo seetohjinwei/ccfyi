@@ -15,6 +15,16 @@ const (
 	ValueList   ValueType = '1'
 )
 
+func GetValueType(b byte) (ValueType, error) {
+	switch ValueType(b) {
+	case ValueString:
+		return ValueString, nil
+	case ValueList:
+		return ValueList, nil
+	}
+	return 0, errors.New("value type is invalid")
+}
+
 func EncodeLength(length uint) []byte {
 	if length <= 63 {
 		// MSB == 00
@@ -54,7 +64,7 @@ func DecodeLength(b []byte) (uint, []byte, error) {
 		return val, b[5:], nil
 	}
 
-	log.Error().Bytes("bytes", b).Msg("cannot decode length")
+	log.Info().Bytes("bytes", b).Msg("cannot decode length")
 
 	return 0, b, errors.New("cannot decode length, it might be a number or string")
 }

@@ -40,6 +40,17 @@ func (l *List) Serialise() []byte {
 	return encoding.EncodeList(list)
 }
 
+func DeserialiseList(b []byte) (*List, []byte, error) {
+	strs, remaining, err := encoding.DecodeList(b)
+	if err != nil {
+		return nil, b, err
+	}
+	list := NewList()
+	list.RPush(strs)
+
+	return list, remaining, nil
+}
+
 func (l *List) LPush(strs []string) (int64, bool) {
 	for _, s := range strs {
 		l.list.PushFront(s)
@@ -82,4 +93,45 @@ func (l *List) LRange(start, stop int) ([]string, bool) {
 
 func (l *List) LLen() (int64, bool) {
 	return int64(l.list.Len()), true
+}
+
+func (l *List) Equal(other any) bool {
+	o, ok := other.(*List)
+	if !ok {
+		return false
+	}
+
+	if l == nil || o == nil {
+		return (l == nil) && (o == nil)
+	}
+
+	if l.list.Len() != o.list.Len() {
+		return false
+	}
+	for i := 0; i < l.list.Len(); i++ {
+		if l.list.At(i) != o.list.At(i) {
+			return false
+		}
+	}
+
+	return true
+}
+
+type ListBuilder struct {
+	*List
+}
+
+func NewListBuilder() *ListBuilder {
+	return &ListBuilder{
+		NewList(),
+	}
+}
+
+func (b *ListBuilder) Add(strs []string) *ListBuilder {
+	b.List.RPush(strs)
+	return b
+}
+
+func (b *ListBuilder) Build() *List {
+	return b.List
 }

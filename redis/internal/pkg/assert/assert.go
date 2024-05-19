@@ -5,9 +5,12 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/logging"
 )
+
+type AnyError struct{}
 
 func init() {
 	logging.Init()
@@ -17,8 +20,17 @@ func V(v ...any) []any {
 	return v
 }
 
-func Equal(t testing.TB, actual, expected []any) {
+type Equaliser interface {
+	Equal(any) bool
+}
+
+func Equal(t testing.TB, actual, expected []any, opts ...cmp.Option) {
 	t.Helper()
+
+	defaultOpts := []cmp.Option{cmpopts.EquateEmpty()}
+	fullOpts := make([]cmp.Option, 0, len(defaultOpts)+len(opts))
+	fullOpts = append(fullOpts, defaultOpts...)
+	fullOpts = append(fullOpts, opts...)
 
 	if len(expected) != len(actual) {
 		// something wrong with the test case
@@ -29,7 +41,25 @@ func Equal(t testing.TB, actual, expected []any) {
 		e := expected[i]
 		a := actual[i]
 
-		if !cmp.Equal(e, a) {
+		{
+			ee, ok1 := e.(Equaliser)
+			aa, ok2 := a.(Equaliser)
+			if ok1 && ok2 {
+				if ee.Equal(aa) {
+					t.Errorf("expected %+v, but got %+v", ee, aa)
+				}
+				continue
+			}
+		}
+
+		if _, isExpectedError := e.(AnyError); isExpectedError {
+			if _, isActualError := a.(error); !isActualError {
+				t.Errorf("expected an error, but got %+v", a)
+			}
+			continue
+		}
+
+		if !cmp.Equal(e, a, fullOpts...) {
 			if reflect.TypeOf(e) != reflect.TypeOf(a) {
 				t.Errorf("expected %+v (%v), but got %+v (%v) - type mismatch!", e, reflect.TypeOf(e), a, reflect.TypeOf(a))
 			} else {
@@ -39,10 +69,10 @@ func Equal(t testing.TB, actual, expected []any) {
 	}
 }
 
-func EqualO[T any](t testing.TB, actual, expected T) {
+func EqualO[T any](t testing.TB, actual, expected T, opts ...cmp.Option) {
 	t.Helper()
 
-	Equal(t, []any{actual}, []any{expected})
+	Equal(t, []any{actual}, []any{expected}, opts...)
 }
 
 func HasError(t testing.TB, err error) {
@@ -87,6 +117,18 @@ func IsFalse(t testing.TB, value bool, format string, args ...any) {
 	t.Helper()
 
 	IsTrue(t, !value, format, args...)
+}
+
+func HasPanic(t testing.TB, f func()) {
+	t.Helper()
+
+	defer func() {
+		if ret := recover(); ret == nil {
+			t.Errorf("expected panic, but did not panic")
+		}
+	}()
+
+	f()
 }
 
 func NoPanic(t testing.TB, f func()) {

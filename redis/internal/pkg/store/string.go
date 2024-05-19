@@ -1,6 +1,7 @@
 package store
 
 import (
+	"errors"
 	"strconv"
 	"sync"
 
@@ -69,6 +70,22 @@ func (s *String) Serialise() []byte {
 	panic("ret.ActualType == stringUnknown")
 }
 
+func DeserialiseString(b []byte) (*String, []byte, error) {
+	// attempt with string, then integer
+
+	s, remaining, err := encoding.DecodeString(b)
+	if err == nil {
+		return NewString(s), remaining, nil
+	}
+
+	k, remaining, err := encoding.DecodeInteger(b)
+	if err != nil {
+		return nil, b, errors.New("could not deserialise into a string item")
+	}
+
+	return NewString(strconv.FormatInt(k, 10)), remaining, nil
+}
+
 func (s *String) Get() (string, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -107,4 +124,17 @@ func (s *String) Decr() (int64, bool) {
 	s.integer--
 
 	return s.integer, true
+}
+
+func (s *String) Equal(other any) bool {
+	o, ok := other.(*String)
+	if !ok {
+		return false
+	}
+
+	if s == nil || o == nil {
+		return (s == nil) && (o == nil)
+	}
+
+	return s.actualType == o.actualType && s.str == o.str && s.integer == o.integer
 }

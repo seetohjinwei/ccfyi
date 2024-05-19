@@ -14,4 +14,9 @@ type Item interface {
 	RPush(strs []string) (int64, bool)
 	LRange(start, stop int) ([]string, bool)
 	LLen() (int64, bool)
+
+	// Equal checks for equality.
+	// Should only be used for tests.
+	// It is NOT safe for concurrent use.
+	Equal(any) bool
 }

@@ -28,3 +28,18 @@ func (d *Delay) HasExpired() bool {
 func (d *Delay) Serialise() []byte {
 	return encoding.EncodeInteger(d.expiry.UnixMicro())
 }
+
+// Equal checks for equality.
+// Should only be used for tests.
+func (d *Delay) Equal(other any) bool {
+	o, ok := other.(*Delay)
+	if !ok {
+		return false
+	}
+
+	if d == nil || o == nil {
+		return (d == nil) && (o == nil)
+	}
+
+	return d.expiry == o.expiry
+}

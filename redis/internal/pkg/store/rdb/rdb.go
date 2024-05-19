@@ -2,9 +2,12 @@ package rdb
 
 import (
 	"bytes"
+	"errors"
+	"time"
 
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store"
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/rdb/encoding"
+	"github.com/seetohjinwei/ccfyi/redis/pkg/delay"
 )
 
 // *partially* follows the file format listed here: https://rdb.fnordig.de/file_format.html
@@ -18,11 +21,11 @@ type SaveBuffer struct {
 	bytes.Buffer
 }
 
-func (buf *SaveBuffer) saveHeader() {
+func (buf *SaveBuffer) header() {
 	buf.WriteString(magicString)
 }
 
-func (buf *SaveBuffer) saveValue(k string, v *store.Value) {
+func (buf *SaveBuffer) value(k string, v *store.Value) {
 	item, ok := v.Item()
 	if !ok {
 		return
@@ -34,18 +37,152 @@ func (buf *SaveBuffer) saveValue(k string, v *store.Value) {
 	buf.Write(item.Serialise())
 }
 
+func (buf *SaveBuffer) eof() {
+	buf.WriteString("FF")
+	// TODO: CRC64 checksum
+}
+
 // Make sure to lock the map!
 func (buf *SaveBuffer) Save(values map[string]*store.Value) []byte {
-	buf.saveHeader()
+	buf.header()
 
 	for k, v := range values {
-		buf.saveValue(k, v)
+		buf.value(k, v)
 	}
+
+	buf.eof()
 
 	return buf.Bytes()
 }
 
-func Load(source []byte) map[string]*store.Value {
-	ret := make(map[string]*store.Value)
-	return ret
+// zero value is NOT usable.
+type LoadBuffer struct {
+	b   []byte
+	ret map[string]*store.Value
+}
+
+func NewLoadBuffer(b []byte) LoadBuffer {
+	return LoadBuffer{
+		b:   b,
+		ret: map[string]*store.Value{},
+	}
+}
+
+func (buf *LoadBuffer) header() error {
+	var found bool
+	buf.b, found = bytes.CutPrefix(buf.b, []byte(magicString))
+	if !found {
+		return errors.New("magic string not found")
+	}
+	return nil
+}
+
+func (buf *LoadBuffer) expiry() (*delay.Delay, error) {
+	var found bool
+	var usec int64
+	var err error
+	buf.b, found = bytes.CutPrefix(buf.b, []byte("FD"))
+	if !found {
+		return nil, nil
+	}
+	usec, buf.b, err = encoding.DecodeInteger(buf.b)
+	if err != nil {
+		return nil, err
+	}
+	return delay.NewDelay(time.UnixMicro(usec)), nil
+}
+
+func (buf *LoadBuffer) valueType() (encoding.ValueType, error) {
+	if len(buf.b) == 0 {
+		return 0, errors.New("not enough bytes for valueType()")
+	}
+
+	valueType := buf.b[0]
+
+	ret, err := encoding.GetValueType(valueType)
+	if err != nil {
+		return ret, err
+	}
+
+	buf.b = buf.b[1:]
+	return ret, err
+}
+
+func (buf *LoadBuffer) key() (string, error) {
+	var ret string
+	var err error
+
+	ret, buf.b, err = encoding.DecodeString(buf.b)
+
+	return ret, err
+}
+
+func (buf *LoadBuffer) value(valueType encoding.ValueType) (store.Item, error) {
+	var item store.Item
+	var err error
+
+	switch valueType {
+	case encoding.ValueString:
+		item, buf.b, err = store.DeserialiseString(buf.b)
+		return item, err
+	case encoding.ValueList:
+		item, buf.b, err = store.DeserialiseList(buf.b)
+		return item, err
+	}
+
+	return nil, errors.New("cannot deserialise value because value type is unknown")
+}
+
+func (buf *LoadBuffer) item() error {
+	expiry, err := buf.expiry()
+	if err != nil {
+		return err
+	}
+	valueType, err := buf.valueType()
+	if err != nil {
+		return err
+	}
+	key, err := buf.key()
+	if err != nil {
+		return err
+	}
+	value, err := buf.value(valueType)
+	if err != nil {
+		return err
+	}
+
+	buf.ret[key] = store.NewValue(value, expiry)
+
+	return nil
+}
+
+func (buf *LoadBuffer) values() error {
+	for {
+		if done, err := buf.eof(); done {
+			return err
+		}
+		if err := buf.item(); err != nil {
+			return err
+		}
+	}
+}
+
+func (buf *LoadBuffer) eof() (done bool, err error) {
+	var found bool
+	buf.b, found = bytes.CutPrefix(buf.b, []byte("FF"))
+	if found {
+		// TODO: check the checksum here
+		return true, nil
+	}
+	return false, nil
+}
+
+func (buf *LoadBuffer) Load() (map[string]*store.Value, error) {
+	if err := buf.header(); err != nil {
+		return nil, err
+	}
+	if err := buf.values(); err != nil {
+		return nil, err
+	}
+	return buf.ret, nil
 }

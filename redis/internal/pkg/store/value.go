@@ -33,7 +33,8 @@ func (v *Value) Item() (Item, bool) {
 }
 
 func (v *Value) SerialiseExpiry() []byte {
-	if v.delay.HasExpired() {
+	if v.delay.HasExpired() || v.delay == nil {
+		// if no delay
 		return nil
 	}
 
@@ -44,4 +45,19 @@ func (v *Value) SerialiseExpiry() []byte {
 	buf.Write(v.delay.Serialise())
 
 	return buf.Bytes()
+}
+
+// Equal checks for equality.
+// Should only be used for tests.
+func (v *Value) Equal(other any) bool {
+	o, ok := other.(*Value)
+	if !ok {
+		return false
+	}
+
+	if v == nil || o == nil {
+		return (v == nil) && (o == nil)
+	}
+
+	return v.delay.Equal(o.delay) && v.item.Equal(o.item)
 }
