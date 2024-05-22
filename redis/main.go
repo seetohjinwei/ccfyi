@@ -19,7 +19,7 @@ func main() {
 
 	s := store.GetSingleton()
 	if err := s.LoadFromDisk(); err != nil {
-		log.Error().Err(err).Msg("failed to load from disk!")
+		panic(err)
 	}
 
 	router, err := server.New("localhost:6379") // TODO: take port as flag

@@ -42,6 +42,11 @@ build:
 run: build
 	LOG=TRACE $(BUILD_DIR)$(NAME)
 
+## prod: run the application with almost no logs
+.PHONY: prod
+prod: build
+	LOG=PANIC $(BUILD_DIR)$(NAME)
+
 .PHONE: clean
 clean:
 	rm -rf $(BUILD_DIR)

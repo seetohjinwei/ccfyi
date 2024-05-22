@@ -101,9 +101,10 @@ func (s *Store) LoadFromDisk() error {
 	defer s.mu.Unlock()
 
 	data, err := disk.Load()
-	if err != nil {
+	if data == nil || err != nil {
 		return err
 	}
+
 	buf := rdb.NewLoadBuffer(data)
 	values, err := buf.Load()
 	if err != nil {
