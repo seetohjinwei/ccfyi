@@ -86,6 +86,7 @@ func (s *Server) Stop() {
 		}()
 		go func() {
 			s.wg.Wait()
+			// TODO: save store to disk?
 			done <- true
 		}()
 

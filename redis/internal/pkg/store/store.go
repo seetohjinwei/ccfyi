@@ -5,7 +5,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/disk"
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/items"
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/rdb"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/delay"
 )
 
@@ -71,6 +73,36 @@ func (s *Store) SetWithDelay(key string, item items.Item, delay *delay.Delay) er
 	}
 
 	return nil
+}
+
+// LoadFromDisk **overrides** the values in `store` with the values loaded from disk.
+// This method should only be called on application startup / recovery!
+func (s *Store) LoadFromDisk() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	data, err := disk.Load()
+	if err != nil {
+		return err
+	}
+	buf := rdb.NewLoadBuffer(data)
+	values, err := buf.Load()
+	if err != nil {
+		return err
+	}
+
+	// overrides existing values!
+	s.values = values
+
+	return nil
+}
+
+func (s *Store) SaveToDisk() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	data := (&rdb.SaveBuffer{}).Save(s.values)
+	return disk.Save(data)
 }
 
 // activeExpiry must be run from a goroutine when the store is constructed.

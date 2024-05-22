@@ -5,6 +5,7 @@ import (
 
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/logging"
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/server"
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store"
 )
 
 func main() {
@@ -14,9 +15,12 @@ func main() {
 
 	// zerolog display the file + line
 
-	// find some way to propagate errors? (not sure what i meant by this)
-
 	// protocol description: https://redis.io/docs/latest/develop/reference/protocol-spec/#resp-protocol-description
+
+	s := store.GetSingleton()
+	if err := s.LoadFromDisk(); err != nil {
+		log.Error().Err(err).Msg("failed to load from disk!")
+	}
 
 	router, err := server.New("localhost:6379") // TODO: take port as flag
 	if err != nil {

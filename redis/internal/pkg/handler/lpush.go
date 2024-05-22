@@ -33,9 +33,7 @@ func LPush(commands []string) (string, bool) {
 	log.Debug().Strs("values", commands[2:]).Msg("pushing into LPush")
 	ret, ok := item.LPush(commands[2:])
 	if !ok {
-		msg := "WRONGTYPE Operation against a key holding the wrong kind of value"
-		log.Error().Any("item", item).Msg(msg)
-		return messages.GetErrorString(msg), true
+		return wrongTypeError(item)
 	}
 
 	return messages.NewInteger(ret).Serialise(), true

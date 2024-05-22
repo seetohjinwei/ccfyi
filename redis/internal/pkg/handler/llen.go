@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"github.com/rs/zerolog/log"
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
@@ -26,9 +25,7 @@ func LLen(commands []string) (string, bool) {
 
 	ret, ok := item.LLen()
 	if !ok {
-		msg := "WRONGTYPE Operation against a key holding the wrong kind of value"
-		log.Error().Any("item", item).Msg(msg)
-		return messages.GetErrorString(msg), true
+		return wrongTypeError(item)
 	}
 
 	return messages.NewInteger(ret).Serialise(), true

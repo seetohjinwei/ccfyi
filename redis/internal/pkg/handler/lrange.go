@@ -42,9 +42,7 @@ func LRange(commands []string) (string, bool) {
 
 	ret, ok := item.LRange(start, stop)
 	if !ok {
-		msg := "WRONGTYPE Operation against a key holding the wrong kind of value"
-		log.Error().Any("item", item).Msg(msg)
-		return messages.GetErrorString(msg), true
+		return wrongTypeError(item)
 	}
 
 	return messages.NewArrayBulkString(ret).Serialise(), true

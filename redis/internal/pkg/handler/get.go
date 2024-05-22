@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"github.com/rs/zerolog/log"
-
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
@@ -29,8 +27,7 @@ func Get(commands []string) (string, bool) {
 
 	val, ok := item.Get()
 	if !ok {
-		log.Error().Msg("get does not exist!")
-		return internalServerError()
+		return wrongTypeError(item)
 	}
 
 	return messages.NewBulkString(val).Serialise(), true
