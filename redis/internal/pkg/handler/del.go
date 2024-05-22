@@ -5,13 +5,6 @@ import (
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
 
-func del(s *store.Store, key string) bool {
-	// TODO: call Delete
-	_, has := s.Get(key)
-
-	return has
-}
-
 const DelCommand = "DEL"
 
 func Del(commands []string) (string, bool) {
@@ -23,14 +16,10 @@ func Del(commands []string) (string, bool) {
 		return invalidArgNum()
 	}
 
+	keys := commands[1:]
+
 	s := store.GetSingleton()
-	count := int64(0)
-	for i := 1; i < len(commands); i++ {
-		key := commands[i]
-		if del(s, key) {
-			count++
-		}
-	}
+	count := s.DeleteMany(keys)
 
 	return messages.NewInteger(count).Serialise(), true
 }

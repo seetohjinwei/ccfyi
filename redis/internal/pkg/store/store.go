@@ -75,6 +75,25 @@ func (s *Store) SetWithDelay(key string, item items.Item, delay *delay.Delay) er
 	return nil
 }
 
+// Deletes the specified keys from the store.
+// Returns the number of keys deleted.
+func (s *Store) DeleteMany(keys []string) int64 {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	count := int64(0)
+
+	for _, key := range keys {
+		if _, has := s.values[key]; !has {
+			continue
+		}
+		delete(s.values, key)
+		count++
+	}
+
+	return count
+}
+
 // LoadFromDisk **overrides** the values in `store` with the values loaded from disk.
 // This method should only be called on application startup / recovery!
 func (s *Store) LoadFromDisk() error {

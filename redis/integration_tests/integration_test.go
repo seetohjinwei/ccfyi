@@ -219,7 +219,20 @@ func TestDelIntegration(t *testing.T) {
 
 	cli := getClient()
 	defer cli.Close()
-	// ctx := context.Background()
+	ctx := context.Background()
 
-	// TODO:
+	// attempt to data race
+	go func() {
+		for range 100 {
+			cli.Set(ctx, "race", "me", 0)
+		}
+	}()
+
+	cli.Set(ctx, "k", "1", 0)
+
+	r := cli.Del(ctx, "k")
+	NoError(t, r.Err())
+	Equal(t, V(r.Result()), V(int64(1), nil))
+
+	Equal(t, V(cli.Get(ctx, "k").Result()), V("", AnyError{}))
 }
