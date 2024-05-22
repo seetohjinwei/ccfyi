@@ -46,7 +46,7 @@ fi
 
 # Runs my pre-commit programs
 wd="$(dirname "$0")/.."
-dirs=( "redis" )
+dirs=( "redis" "spellcheck" )
 for dir in "${dirs[@]}"
 do
 	if [[ $(git --no-pager diff --staged --name-only -- $wd/$dir) ]]; then
