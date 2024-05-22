@@ -24,7 +24,6 @@ pub fn approx_word_count(allocator: std.mem.Allocator, file: std.fs.File) !u64 {
 
     var sample_count: u64 = 0;
     for (sample) |byte| {
-        // for (try sample.toOwnedSlice()) |byte| {
         if (byte == '\n') {
             sample_count += 1;
         }
