@@ -4,6 +4,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store"
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/items"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
 
@@ -23,7 +24,7 @@ func Decr(commands []string) (string, bool) {
 
 	item, ok := s.Get(key)
 	if !ok {
-		item = store.NewString("0")
+		item = items.NewString("0")
 		err := s.Set(key, item)
 		if err != nil {
 			return messages.GetError(err), true

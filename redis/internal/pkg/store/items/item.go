@@ -1,4 +1,4 @@
-package store
+package items
 
 import (
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/rdb/encoding"

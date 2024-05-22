@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store"
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/items"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/delay"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
@@ -122,7 +123,7 @@ func Set(commands []string) (string, bool) {
 	var exists bool
 	if args.NX || args.XX || args.shouldGet {
 		// only get the key if required
-		var item store.Item
+		var item items.Item
 		var ok bool
 		item, exists = s.Get(key)
 		if exists {
@@ -141,9 +142,9 @@ func Set(commands []string) (string, bool) {
 	}
 
 	if args.expiry.IsZero() {
-		err = s.Set(key, store.NewString(value))
+		err = s.Set(key, items.NewString(value))
 	} else {
-		err = s.SetWithDelay(key, store.NewString(value), delay.NewDelay(args.expiry))
+		err = s.SetWithDelay(key, items.NewString(value), delay.NewDelay(args.expiry))
 	}
 	if err != nil {
 		return messages.GetError(err), true

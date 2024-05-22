@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	. "github.com/seetohjinwei/ccfyi/redis/internal/pkg/assert"
-	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store"
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/items"
 )
 
 func TestSave(t *testing.T) {
@@ -17,29 +17,29 @@ func TestSave(t *testing.T) {
 	IsTrue(t, ret2 != nil, "%+v", string(ret2))
 
 	buf3 := SaveBuffer{}
-	ret3 := buf3.Save(map[string]*store.Value{
-		"k1": store.NewValue(store.NewString("v1"), nil),
-		"k2": store.NewValue(store.NewString("v2"), nil),
-		"k3": store.NewValue(store.NewString("3"), nil),
-		"k4": store.NewValue(store.NewList(), nil),
-		"k5": store.NewValue(store.NewListBuilder().Add([]string{"1", "2", "3"}).Build(), nil),
+	ret3 := buf3.Save(map[string]*items.Value{
+		"k1": items.NewValue(items.NewString("v1"), nil),
+		"k2": items.NewValue(items.NewString("v2"), nil),
+		"k3": items.NewValue(items.NewString("3"), nil),
+		"k4": items.NewValue(items.NewList(), nil),
+		"k5": items.NewValue(items.NewListBuilder().Add([]string{"1", "2", "3"}).Build(), nil),
 	})
 	IsTrue(t, ret3 != nil, "%+v", string(ret3))
 }
 
 func TestLoad(t *testing.T) {
 	buf1 := NewLoadBuffer(nil)
-	Equal(t, V(buf1.Load()), V(map[string]*store.Value(nil), AnyError{}))
+	Equal(t, V(buf1.Load()), V(map[string]*items.Value(nil), AnyError{}))
 }
 
 func TestSaveLoad(t *testing.T) {
-	contents := []map[string]*store.Value{
+	contents := []map[string]*items.Value{
 		{
-			"k1": store.NewValue(store.NewString("v1"), nil),
-			"k2": store.NewValue(store.NewString("v2"), nil),
-			"k3": store.NewValue(store.NewString("3"), nil),
-			"k4": store.NewValue(store.NewList(), nil),
-			"k5": store.NewValue(store.NewListBuilder().Add([]string{"1", "2", "3"}).Build(), nil),
+			"k1": items.NewValue(items.NewString("v1"), nil),
+			"k2": items.NewValue(items.NewString("v2"), nil),
+			"k3": items.NewValue(items.NewString("3"), nil),
+			"k4": items.NewValue(items.NewList(), nil),
+			"k5": items.NewValue(items.NewListBuilder().Add([]string{"1", "2", "3"}).Build(), nil),
 		},
 		{},
 	}

@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/items"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/delay"
 )
 
@@ -12,7 +13,7 @@ type Store struct {
 	mu        sync.RWMutex
 	ctx       context.Context
 	ctxCancel context.CancelFunc
-	values    map[string]*Value
+	values    map[string]*items.Value
 	expirySet map[string]struct{}
 }
 
@@ -32,14 +33,14 @@ func newNoExpiry() *Store {
 		mu:        sync.RWMutex{},
 		ctx:       ctx,
 		ctxCancel: cancelFunc,
-		values:    make(map[string]*Value),
+		values:    make(map[string]*items.Value),
 		expirySet: make(map[string]struct{}),
 	}
 
 	return ret
 }
 
-func (s *Store) Get(key string) (Item, bool) {
+func (s *Store) Get(key string) (items.Item, bool) {
 	// allows some race condition, but no data races
 	s.mu.RLock()
 	value := s.values[key]
@@ -56,15 +57,15 @@ func (s *Store) Get(key string) (Item, bool) {
 	return item, ok
 }
 
-func (s *Store) Set(key string, item Item) error {
+func (s *Store) Set(key string, item items.Item) error {
 	return s.SetWithDelay(key, item, nil)
 }
 
-func (s *Store) SetWithDelay(key string, item Item, delay *delay.Delay) error {
+func (s *Store) SetWithDelay(key string, item items.Item, delay *delay.Delay) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.values[key] = NewValue(item, delay)
+	s.values[key] = items.NewValue(item, delay)
 	if delay != nil {
 		s.expirySet[key] = struct{}{}
 	}
@@ -112,7 +113,7 @@ func (s *Store) cleanKeys() {
 				// key has been removed in a previous iteration
 				continue
 			}
-			if value.delay.HasExpired() {
+			if value.HasExpired() {
 				expiryCount++
 				delete(s.values, key)
 				delete(s.expirySet, key)

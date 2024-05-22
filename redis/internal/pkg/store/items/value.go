@@ -1,4 +1,4 @@
-package store
+package items
 
 import (
 	"bytes"
@@ -30,6 +30,10 @@ func (v *Value) Item() (Item, bool) {
 		return v.item, false
 	}
 	return v.item, true
+}
+
+func (v *Value) HasExpired() bool {
+	return v.delay.HasExpired()
 }
 
 func (v *Value) SerialiseExpiry() []byte {

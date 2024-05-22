@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/items"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/delay"
 )
 
@@ -14,7 +15,7 @@ func TestStoreGetSet(t *testing.T) {
 
 	store := New()
 
-	err := store.Set("key", NewString("value"))
+	err := store.Set("key", items.NewString("value"))
 	if err != nil {
 		t.Errorf("expected no err, but got %+v", err)
 	}
@@ -26,7 +27,7 @@ func TestStoreGetConcurrent(t *testing.T) {
 	wait := make(chan struct{})
 
 	store := New()
-	store.Set("key", NewString("value"))
+	store.Set("key", items.NewString("value"))
 
 	go func() {
 		<-wait
@@ -53,15 +54,15 @@ func TestStoreSetConcurrent(t *testing.T) {
 
 	go func() {
 		<-wait
-		store.Set("key1", NewString("value"))
+		store.Set("key1", items.NewString("value"))
 	}()
 	go func() {
 		<-wait
-		store.Set("key2", NewString("value"))
+		store.Set("key2", items.NewString("value"))
 	}()
 	go func() {
 		<-wait
-		store.Set("key3", NewString("value"))
+		store.Set("key3", items.NewString("value"))
 	}()
 
 	close(wait)
@@ -76,7 +77,7 @@ func TestStoreGetSetConcurrent(t *testing.T) {
 
 	go func() {
 		<-wait
-		store.Set("key1", NewString("value"))
+		store.Set("key1", items.NewString("value"))
 	}()
 	go func() {
 		<-wait
@@ -84,7 +85,7 @@ func TestStoreGetSetConcurrent(t *testing.T) {
 	}()
 	go func() {
 		<-wait
-		store.Set("key2", NewString("value"))
+		store.Set("key2", items.NewString("value"))
 	}()
 
 	close(wait)
@@ -102,7 +103,7 @@ func TestStoreSetDelay(t *testing.T) {
 	key = "key"
 	value = "value"
 
-	store.SetWithDelay(key, NewString(value), delay.NewDelay(time.Now().Add(50*time.Millisecond)))
+	store.SetWithDelay(key, items.NewString(value), delay.NewDelay(time.Now().Add(50*time.Millisecond)))
 	item, ok := store.Get(key)
 	if !ok {
 		t.Errorf("expected to get the value before expiry")
@@ -151,7 +152,7 @@ func TestStoreCleanKeys(t *testing.T) {
 	store := newNoExpiry()
 
 	// expire immediately
-	store.SetWithDelay("k", NewString("v"), delay.NewDelay(time.Now()))
+	store.SetWithDelay("k", items.NewString("v"), delay.NewDelay(time.Now()))
 	if len(store.values) != 1 {
 		t.Errorf("expected store to contain the value before cleaning")
 	}
@@ -161,10 +162,10 @@ func TestStoreCleanKeys(t *testing.T) {
 	}
 
 	for i := 0; i < 19; i++ {
-		store.SetWithDelay(strconv.Itoa(i), NewString("v"), delay.NewDelay(time.Now().Add(time.Hour)))
+		store.SetWithDelay(strconv.Itoa(i), items.NewString("v"), delay.NewDelay(time.Now().Add(time.Hour)))
 	}
 	for i := 19; i < 22; i++ {
-		store.SetWithDelay(strconv.Itoa(i), NewString("v"), delay.NewDelay(time.Now()))
+		store.SetWithDelay(strconv.Itoa(i), items.NewString("v"), delay.NewDelay(time.Now()))
 	}
 	if len(store.values) != 22 {
 		t.Errorf("expected store to contain the values before cleaning")

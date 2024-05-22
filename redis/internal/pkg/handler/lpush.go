@@ -2,7 +2,9 @@ package handler
 
 import (
 	"github.com/rs/zerolog/log"
+
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store"
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/items"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/messages"
 )
 
@@ -21,7 +23,7 @@ func LPush(commands []string) (string, bool) {
 	key := commands[1]
 	item, ok := s.Get(key)
 	if !ok {
-		item = store.NewList()
+		item = items.NewList()
 		err := s.Set(key, item)
 		if err != nil {
 			return messages.GetError(err), true

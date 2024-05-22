@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store"
+	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/items"
 	"github.com/seetohjinwei/ccfyi/redis/internal/pkg/store/rdb/encoding"
 	"github.com/seetohjinwei/ccfyi/redis/pkg/delay"
 )
@@ -25,7 +25,7 @@ func (buf *SaveBuffer) header() {
 	buf.WriteString(magicString)
 }
 
-func (buf *SaveBuffer) value(k string, v *store.Value) {
+func (buf *SaveBuffer) value(k string, v *items.Value) {
 	item, ok := v.Item()
 	if !ok {
 		return
@@ -47,7 +47,7 @@ func (buf *SaveBuffer) eof() {
 }
 
 // Make sure to lock the map!
-func (buf *SaveBuffer) Save(values map[string]*store.Value) []byte {
+func (buf *SaveBuffer) Save(values map[string]*items.Value) []byte {
 	buf.header()
 
 	for k, v := range values {
@@ -64,14 +64,14 @@ func (buf *SaveBuffer) Save(values map[string]*store.Value) []byte {
 type LoadBuffer struct {
 	b    []byte
 	full []byte
-	ret  map[string]*store.Value
+	ret  map[string]*items.Value
 }
 
 func NewLoadBuffer(b []byte) LoadBuffer {
 	return LoadBuffer{
 		full: b,
 		b:    b,
-		ret:  map[string]*store.Value{},
+		ret:  map[string]*items.Value{},
 	}
 }
 
@@ -124,16 +124,16 @@ func (buf *LoadBuffer) key() (string, error) {
 	return ret, err
 }
 
-func (buf *LoadBuffer) value(valueType encoding.ValueType) (store.Item, error) {
-	var item store.Item
+func (buf *LoadBuffer) value(valueType encoding.ValueType) (items.Item, error) {
+	var item items.Item
 	var err error
 
 	switch valueType {
 	case encoding.ValueString:
-		item, buf.b, err = store.DeserialiseString(buf.b)
+		item, buf.b, err = items.DeserialiseString(buf.b)
 		return item, err
 	case encoding.ValueList:
-		item, buf.b, err = store.DeserialiseList(buf.b)
+		item, buf.b, err = items.DeserialiseList(buf.b)
 		return item, err
 	}
 
@@ -158,7 +158,7 @@ func (buf *LoadBuffer) item() error {
 		return err
 	}
 
-	buf.ret[key] = store.NewValue(value, expiry)
+	buf.ret[key] = items.NewValue(value, expiry)
 
 	return nil
 }
@@ -191,7 +191,7 @@ func (buf *LoadBuffer) eof() (done bool, err error) {
 	return false, nil
 }
 
-func (buf *LoadBuffer) Load() (map[string]*store.Value, error) {
+func (buf *LoadBuffer) Load() (map[string]*items.Value, error) {
 	if err := buf.header(); err != nil {
 		return nil, err
 	}

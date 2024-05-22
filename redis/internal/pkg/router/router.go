@@ -44,8 +44,8 @@ func NewDefault() *Router {
 		handler.RPushCommand:  handler.RPush,
 		handler.LLenCommand:   handler.LLen,
 		handler.LRangeCommand: handler.LRange,
-		// TODO: SAVE
-		handler.DelCommand: handler.Del, // TODO: not done (do after those)
+		handler.SaveCommand:   handler.Save,
+		handler.DelCommand:    handler.Del, // TODO: not done (do after those)
 	}
 
 	// for routes like ACL, use sub-handlers
