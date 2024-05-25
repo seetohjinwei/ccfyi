@@ -1,6 +1,8 @@
 const std = @import("std");
 
 pub fn main() !void {
+    // TODO: https://ziglang.org/documentation/master/#toc-Choosing-an-Allocator
+
     // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
     std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
 

@@ -1,8 +1,8 @@
 const std = @import("std");
 const files = @import("./files.zig");
 
-const BloomFilterError = error{
-    NewFailed,
+pub const BloomFilterError = error{
+    AllocFailed,
     HashFailed,
     WordIsTooLong,
 };
@@ -18,8 +18,10 @@ const BloomFilter = struct {
     k: u64,
 
     /// Initialises the BloomFilter.
-    fn init(allocator: std.mem.Allocator, m: u64, k: u64) !BloomFilter {
-        const bit_set = try std.bit_set.DynamicBitSetUnmanaged.initEmpty(allocator, m);
+    fn init(allocator: std.mem.Allocator, m: u64, k: u64) BloomFilterError!BloomFilter {
+        const bit_set = std.bit_set.DynamicBitSetUnmanaged.initEmpty(allocator, m) catch {
+            return BloomFilterError.AllocFailed;
+        };
 
         return BloomFilter{ .allocator = allocator, .bit_set = bit_set, .m = m, .k = k };
     }
@@ -52,7 +54,7 @@ const BloomFilter = struct {
     }
 
     /// Deinits the BloomFilter.
-    fn deinit(self: *BloomFilter) void {
+    pub fn deinit(self: *BloomFilter) void {
         self.bit_set.deinit(self.allocator);
     }
 };
@@ -88,9 +90,7 @@ fn get_m_k(n: u64, p: f64) struct { m: u64, k: u64 } {
 pub fn from_reader(allocator: std.mem.Allocator, approx_word_count: u64, reader: anytype) BloomFilterError!BloomFilter {
     const m_k = get_m_k(approx_word_count, p_default);
 
-    var bloom_filter = BloomFilter.init(allocator, m_k.m, m_k.k) catch {
-        return BloomFilterError.NewFailed;
-    };
+    var bloom_filter = try BloomFilter.init(allocator, m_k.m, m_k.k);
 
     while (reader.readUntilDelimiterOrEofAlloc(allocator, '\n', 1000) catch {
         return BloomFilterError.WordIsTooLong;
