@@ -1,6 +1,8 @@
 const std = @import("std");
 const files = @import("./files.zig");
 
+const VERSION = "01";
+
 pub const BloomFilterError = error{
     AllocFailed,
     HashFailed,
@@ -51,6 +53,46 @@ const BloomFilter = struct {
         }
 
         return true;
+    }
+
+    /// Returns bytes reprsenting the BloomFilter. The BloomFilter can be recreated using these bytes.
+    /// The caller owns the returned memory. Free it with `allocator.free(bytes)`.
+    pub fn to_bytes(self: *BloomFilter) BloomFilterError![]u8 {
+        // alloc on stack (and reuse this)
+        var buf = [_]u8{ 0, 0, 0, 0 };
+        const buf_u16 = buf[0..@sizeOf(u16)];
+
+        var bytes = std.ArrayList(u8).init(self.allocator);
+
+        // The first four bytes will be an identifier, we’ll use CCBF.
+        bytes.appendSlice("CCBF") catch {
+            return BloomFilterError.AllocFailed;
+        };
+        // The next two bytes will be a version number to describe the version number of the file.
+        bytes.appendSlice(VERSION) catch {
+            return BloomFilterError.AllocFailed;
+        };
+        // The next two bytes will be the number of hash functions used.
+        std.mem.writeInt(u16, buf_u16, @intCast(self.k), std.builtin.Endian.big);
+        bytes.appendSlice(buf_u16) catch {
+            return BloomFilterError.AllocFailed;
+        };
+        // The next four bytes will be the number of bits used for the filter.
+        std.mem.writeInt(u32, &buf, @intCast(self.m), std.builtin.Endian.big);
+        bytes.appendSlice(&buf) catch {
+            return BloomFilterError.AllocFailed;
+        };
+
+        // TODO: write the bitset -> bytes conversion here
+        // probably just loop through the bits?
+
+        defer bytes.deinit();
+
+        const data = bytes.toOwnedSlice() catch {
+            return BloomFilterError.AllocFailed;
+        };
+
+        return data;
     }
 
     /// Deinits the BloomFilter.

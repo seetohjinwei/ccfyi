@@ -4,6 +4,7 @@ const bf = @import("./bloom_filter.zig");
 const FileError = error{
     AllocFailed,
     ReadError,
+    WriteError,
 };
 
 const sample_ratio = 100;
@@ -45,7 +46,7 @@ pub fn approx_word_count(allocator: std.mem.Allocator, file: std.fs.File) FileEr
 }
 
 /// Builds the dictionary from the source file to a destination file.
-pub fn build(allocator: std.mem.Allocator, source: std.fs.File, _: std.fs.File) (FileError || bf.BloomFilterError)!void {
+pub fn build(allocator: std.mem.Allocator, source: std.fs.File, dest: std.fs.File) (FileError || bf.BloomFilterError)!void {
     const wc = try approx_word_count(allocator, source);
 
     // reset file pointer
@@ -57,6 +58,13 @@ pub fn build(allocator: std.mem.Allocator, source: std.fs.File, _: std.fs.File) 
 
     var bloom_filter = try bf.from_reader(allocator, wc, source_reader);
     defer bloom_filter.deinit();
+
+    const bytes = try bloom_filter.to_bytes();
+    defer allocator.free(bytes);
+
+    dest.writer().writeAll(bytes) catch {
+        return FileError.WriteError;
+    };
 
     // TODO: remove
     var m: u64 = 0;
