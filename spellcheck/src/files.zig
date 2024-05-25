@@ -46,7 +46,7 @@ pub fn approx_word_count(allocator: std.mem.Allocator, file: std.fs.File) FileEr
 }
 
 /// Builds the dictionary from the source file to a destination file.
-pub fn build(allocator: std.mem.Allocator, source: std.fs.File, dest: std.fs.File) (FileError || bf.BloomFilterError)!void {
+pub fn build(allocator: std.mem.Allocator, source: std.fs.File, dest: std.fs.File) (FileError || bf.Error)!void {
     const wc = try approx_word_count(allocator, source);
 
     // reset file pointer
@@ -65,21 +65,11 @@ pub fn build(allocator: std.mem.Allocator, source: std.fs.File, dest: std.fs.Fil
     dest.writer().writeAll(bytes) catch {
         return FileError.WriteError;
     };
-
-    // TODO: remove
-    var m: u64 = 0;
-    while (m < bloom_filter.m) : (m += 1) {
-        std.debug.print("{}: {} ", .{ m, bloom_filter.bit_set.isSet(m) });
-    }
 }
 
 test "approx_word_count" {
     // ugly hard-coding of a test file
     const file = try std.fs.cwd().openFile("dict.txt", .{});
-
-    // const tmp_dir = std.testing.tmpDir(.{});
-    // const file = try tmp_dir.dir.createFile("dict.txt", .{ .read = true });
-    // _ = try file.write("word\nword\nword\n");
 
     const count = approx_word_count(std.testing.allocator, file) catch |err| {
         return err;

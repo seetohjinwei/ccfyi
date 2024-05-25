@@ -3,10 +3,11 @@ const files = @import("./files.zig");
 
 const VERSION = "01";
 
-pub const BloomFilterError = error{
+pub const Error = error{
     AllocFailed,
     HashFailed,
     WordIsTooLong,
+    Unreachable,
 };
 
 /// BloomFilter is an implementation of a standard bloom filter.
@@ -20,20 +21,20 @@ const BloomFilter = struct {
     k: u64,
 
     /// Initialises the BloomFilter.
-    fn init(allocator: std.mem.Allocator, m: u64, k: u64) BloomFilterError!BloomFilter {
+    fn init(allocator: std.mem.Allocator, m: u64, k: u64) Error!BloomFilter {
         const bit_set = std.bit_set.DynamicBitSetUnmanaged.initEmpty(allocator, m) catch {
-            return BloomFilterError.AllocFailed;
+            return Error.AllocFailed;
         };
 
         return BloomFilter{ .allocator = allocator, .bit_set = bit_set, .m = m, .k = k };
     }
 
     /// Adds `data` to the BloomFilter.
-    fn add(self: *BloomFilter, data: []const u8) BloomFilterError!void {
+    fn add(self: *BloomFilter, data: []const u8) Error!void {
         var k: u64 = 0;
         while (k < self.k) : (k += 1) {
             const index = hash(self.allocator, self.m, k, data) catch {
-                return BloomFilterError.HashFailed;
+                return Error.HashFailed;
             };
             self.bit_set.set(index);
         }
@@ -41,11 +42,11 @@ const BloomFilter = struct {
 
     /// Returns true if `data` is probably in the BloomFilter.
     /// Returns false if `data` is definitely not in the BloomFilter.
-    fn has(self: *BloomFilter, data: []const u8) BloomFilterError!bool {
+    fn has(self: *BloomFilter, data: []const u8) Error!bool {
         var k: u64 = 0;
         while (k < self.k) : (k += 1) {
             const index = hash(self.allocator, self.m, k, data) catch {
-                return BloomFilterError.HashFailed;
+                return Error.HashFailed;
             };
             if (!self.bit_set.isSet(index)) {
                 return false;
@@ -55,41 +56,67 @@ const BloomFilter = struct {
         return true;
     }
 
+    fn bit_set_to_bytes(self: *BloomFilter, bytes: *std.ArrayList(u8)) Error!void {
+        // The actual bytes of the bitset.
+        const num_bytes = std.math.divCeil(u64, self.m, 8) catch {
+            return Error.Unreachable;
+        };
+        var byte_index: usize = 0;
+        while (byte_index < num_bytes) : (byte_index += 1) {
+            var byte: u8 = 0;
+
+            // doesn't compile without `inline` lol
+            inline for (0..8) |bit_index| {
+                const bit_set_pos = byte_index * 8 + bit_index;
+                if (bit_set_pos >= self.bit_set.capacity()) {
+                    break;
+                }
+
+                if (self.bit_set.isSet(bit_set_pos)) {
+                    byte |= @as(u8, 1) << bit_index;
+                }
+            }
+
+            bytes.append(byte) catch {
+                return Error.AllocFailed;
+            };
+        }
+    }
+
     /// Returns bytes reprsenting the BloomFilter. The BloomFilter can be recreated using these bytes.
     /// The caller owns the returned memory. Free it with `allocator.free(bytes)`.
-    pub fn to_bytes(self: *BloomFilter) BloomFilterError![]u8 {
+    pub fn to_bytes(self: *BloomFilter) Error![]u8 {
         // alloc on stack (and reuse this)
-        var buf = [_]u8{ 0, 0, 0, 0 };
+        var buf = [_]u8{0} ** 4;
         const buf_u16 = buf[0..@sizeOf(u16)];
 
         var bytes = std.ArrayList(u8).init(self.allocator);
+        defer bytes.deinit();
 
         // The first four bytes will be an identifier, we’ll use CCBF.
         bytes.appendSlice("CCBF") catch {
-            return BloomFilterError.AllocFailed;
+            return Error.AllocFailed;
         };
         // The next two bytes will be a version number to describe the version number of the file.
         bytes.appendSlice(VERSION) catch {
-            return BloomFilterError.AllocFailed;
+            return Error.AllocFailed;
         };
         // The next two bytes will be the number of hash functions used.
         std.mem.writeInt(u16, buf_u16, @intCast(self.k), std.builtin.Endian.big);
         bytes.appendSlice(buf_u16) catch {
-            return BloomFilterError.AllocFailed;
+            return Error.AllocFailed;
         };
         // The next four bytes will be the number of bits used for the filter.
         std.mem.writeInt(u32, &buf, @intCast(self.m), std.builtin.Endian.big);
         bytes.appendSlice(&buf) catch {
-            return BloomFilterError.AllocFailed;
+            return Error.AllocFailed;
         };
 
-        // TODO: write the bitset -> bytes conversion here
-        // probably just loop through the bits?
-
-        defer bytes.deinit();
+        // The actual bytes of the bitset.
+        try self.bit_set_to_bytes(&bytes);
 
         const data = bytes.toOwnedSlice() catch {
-            return BloomFilterError.AllocFailed;
+            return Error.AllocFailed;
         };
 
         return data;
@@ -129,13 +156,13 @@ fn get_m_k(n: u64, p: f64) struct { m: u64, k: u64 } {
 /// Creates a BloomFilter from a Reader.
 /// `approx_word_count` is an approximation of the number of words in the reader.
 /// To generate `approx_word_count`, you may use `files.approx_word_count`.
-pub fn from_reader(allocator: std.mem.Allocator, approx_word_count: u64, reader: anytype) BloomFilterError!BloomFilter {
+pub fn from_reader(allocator: std.mem.Allocator, approx_word_count: u64, reader: anytype) Error!BloomFilter {
     const m_k = get_m_k(approx_word_count, p_default);
 
     var bloom_filter = try BloomFilter.init(allocator, m_k.m, m_k.k);
 
     while (reader.readUntilDelimiterOrEofAlloc(allocator, '\n', 1000) catch {
-        return BloomFilterError.WordIsTooLong;
+        return Error.WordIsTooLong;
     }) |word| {
         try bloom_filter.add(word);
         allocator.free(word);
@@ -183,13 +210,28 @@ test "bloom_filter" {
     };
     defer bloom_filter.deinit();
 
-    // var m: u64 = 0;
-    // while (m < bloom_filter.m) : (m += 1) {
-    //     std.debug.print("{}: {} ", .{ m, bloom_filter.bit_set.isSet(m) });
-    // }
-
     try std.testing.expect(try bloom_filter.has("b"));
     try std.testing.expectEqual(false, try bloom_filter.has("34"));
     try std.testing.expectEqual(false, try bloom_filter.has("jrk"));
     try std.testing.expectEqual(false, try bloom_filter.has("421"));
+}
+
+test "bloom_filter.bit_set_to_bytes" {
+    var bloom_filter = try BloomFilter.init(std.testing.allocator, 10, 1);
+    defer bloom_filter.deinit();
+
+    const indexes = [_]usize{ 0, 2, 5, 6, 9 };
+
+    for (indexes) |i| {
+        bloom_filter.bit_set.set(i);
+    }
+
+    var bytes = std.ArrayList(u8).init(std.testing.allocator);
+    defer bytes.deinit();
+
+    try bloom_filter.bit_set_to_bytes(&bytes);
+
+    try std.testing.expectEqual(2, bytes.items.len);
+    try std.testing.expectEqual(0b10, bytes.items[1]);
+    try std.testing.expectEqual(0b01100101, bytes.items[0]);
 }
