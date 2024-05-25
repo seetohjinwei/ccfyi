@@ -1,39 +1,59 @@
 const std = @import("std");
 const files = @import("./files.zig");
 
+const BloomFilterError = error{
+    NewFailed,
+    HashFailed,
+    WordIsTooLong,
+};
+
+/// BloomFilter is an implementation of a standard bloom filter.
+///
+/// `m`: size of bitset
+/// `k`: number of hash functions
 const BloomFilter = struct {
     allocator: std.mem.Allocator,
+    bit_set: std.bit_set.DynamicBitSetUnmanaged,
     m: u64,
     k: u64,
 
-    const Writer = std.io.Writer(
-        *BloomFilter,
-        error{},
-        write,
-    );
-
     /// Initialises the BloomFilter.
-    /// This **must** be done before writing to it.
-    fn init(self: *BloomFilter) void {
-        // TODO:
-        self;
+    fn init(allocator: std.mem.Allocator, m: u64, k: u64) !BloomFilter {
+        const bit_set = try std.bit_set.DynamicBitSetUnmanaged.initEmpty(allocator, m);
 
-        // creates hash functions
-        // allocates bitarray
+        return BloomFilter{ .allocator = allocator, .bit_set = bit_set, .m = m, .k = k };
     }
 
-    fn write(self: *BloomFilter, data: []const u8) error{}!usize {
-        // TODO:
-
-        // throws error if `init` has not been called
-
-        self;
-        data;
-        return 0;
+    /// Adds `data` to the BloomFilter.
+    fn add(self: *BloomFilter, data: []const u8) BloomFilterError!void {
+        var k: u64 = 0;
+        while (k < self.k) : (k += 1) {
+            const index = hash(self.allocator, self.m, k, data) catch {
+                return BloomFilterError.HashFailed;
+            };
+            self.bit_set.set(index);
+        }
     }
 
-    fn writer(self: *BloomFilter) Writer {
-        return .{ .context = self };
+    /// Returns true if `data` is probably in the BloomFilter.
+    /// Returns false if `data` is definitely not in the BloomFilter.
+    fn has(self: *BloomFilter, data: []const u8) BloomFilterError!bool {
+        var k: u64 = 0;
+        while (k < self.k) : (k += 1) {
+            const index = hash(self.allocator, self.m, k, data) catch {
+                return BloomFilterError.HashFailed;
+            };
+            if (!self.bit_set.isSet(index)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// Deinits the BloomFilter.
+    fn deinit(self: *BloomFilter) void {
+        self.bit_set.deinit(self.allocator);
     }
 };
 
@@ -65,15 +85,26 @@ fn get_m_k(n: u64, p: f64) struct { m: u64, k: u64 } {
 /// Creates a BloomFilter from a Reader.
 /// `approx_word_count` is an approximation of the number of words in the reader.
 /// To generate `approx_word_count`, you may use `files.approx_word_count`.
-pub fn from_reader(allocator: std.mem.Allocator, approx_word_count: u64, reader: std.io.AnyReader) BloomFilter {
+pub fn from_reader(allocator: std.mem.Allocator, approx_word_count: u64, reader: anytype) BloomFilterError!BloomFilter {
     const m_k = get_m_k(approx_word_count, p_default);
 
-    const bloom_filter = BloomFilter{ .allocator = allocator, .m = m_k.m, .k = m_k.k };
+    var bloom_filter = BloomFilter.init(allocator, m_k.m, m_k.k) catch {
+        return BloomFilterError.NewFailed;
+    };
 
-    // TODO: does this only write the first line???
-    reader.streamUntilDelimiter(bloom_filter.writer(), "\n", null);
+    while (reader.readUntilDelimiterOrEofAlloc(allocator, '\n', 1000) catch {
+        return BloomFilterError.WordIsTooLong;
+    }) |word| {
+        try bloom_filter.add(word);
+        allocator.free(word);
+    }
 
     return bloom_filter;
+}
+
+test "hash" {
+    try std.testing.expectEqual(65, try hash(std.testing.allocator, 100, 1, "key"));
+    try std.testing.expectEqual(36000358, try hash(std.testing.allocator, 42141512, 2, "key"));
 }
 
 test "get_m_k" {
@@ -96,7 +127,27 @@ test "get_m_k" {
     }
 }
 
-test "hash" {
-    try std.testing.expectEqual(65, try hash(std.testing.allocator, 100, 1, "key"));
-    try std.testing.expectEqual(36000358, try hash(std.testing.allocator, 42141512, 2, "key"));
+test "bloom_filter" {
+    const data = "a\nb\nc\nd\ne\nf\ng\nh\ni\nj\n";
+    var stream = std.io.fixedBufferStream(data);
+    const reader = stream.reader();
+
+    // const file = try std.fs.cwd().openFile("dict.txt", .{});
+    // const reader = file.reader();
+
+    var bloom_filter = from_reader(std.testing.allocator, 10, reader) catch |err| {
+        std.debug.print("error calling from_reader {}\n", .{err});
+        return err;
+    };
+    defer bloom_filter.deinit();
+
+    // var m: u64 = 0;
+    // while (m < bloom_filter.m) : (m += 1) {
+    //     std.debug.print("{}: {} ", .{ m, bloom_filter.bit_set.isSet(m) });
+    // }
+
+    try std.testing.expect(try bloom_filter.has("b"));
+    try std.testing.expectEqual(false, try bloom_filter.has("34"));
+    try std.testing.expectEqual(false, try bloom_filter.has("jrk"));
+    try std.testing.expectEqual(false, try bloom_filter.has("421"));
 }
