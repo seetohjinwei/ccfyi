@@ -14,7 +14,7 @@ pub const Error = error{
 ///
 /// `m`: size of bitset
 /// `k`: number of hash functions
-const BloomFilter = struct {
+pub const BloomFilter = struct {
     allocator: std.mem.Allocator,
     bit_set: std.bit_set.DynamicBitSetUnmanaged,
     m: u64,
@@ -42,7 +42,7 @@ const BloomFilter = struct {
 
     /// Returns true if `data` is probably in the BloomFilter.
     /// Returns false if `data` is definitely not in the BloomFilter.
-    fn has(self: *BloomFilter, data: []const u8) Error!bool {
+    pub fn has(self: *BloomFilter, data: []const u8) Error!bool {
         var k: u64 = 0;
         while (k < self.k) : (k += 1) {
             const index = hash(self.allocator, self.m, k, data) catch {
@@ -54,6 +54,22 @@ const BloomFilter = struct {
         }
 
         return true;
+    }
+
+    /// Returns the list of words that are definitely not in the BloomFilter.
+    /// The caller owns the returned memory. Free it with `data.deinit()`.
+    pub fn has_many(self: *BloomFilter, allocator: std.mem.Allocator, data: std.ArrayList([]const u8)) Error!std.ArrayList([]const u8) {
+        var no_match = std.ArrayList([]const u8).init(allocator);
+
+        for (data.items) |item| {
+            if (!try self.has(item)) {
+                no_match.append(item) catch {
+                    return Error.AllocFailed;
+                };
+            }
+        }
+
+        return no_match;
     }
 
     fn bit_set_to_bytes(self: *BloomFilter, bytes: *std.ArrayList(u8)) Error!void {
@@ -169,6 +185,11 @@ pub fn from_reader(allocator: std.mem.Allocator, approx_word_count: u64, reader:
     }
 
     return bloom_filter;
+}
+
+pub fn from_sc(_: anytype) BloomFilter {
+    // TODO: reverse the implementation of BloomFilter.to_bytes()
+    unreachable;
 }
 
 test "hash" {

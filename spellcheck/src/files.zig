@@ -67,6 +67,10 @@ pub fn build(allocator: std.mem.Allocator, source: std.fs.File, dest: std.fs.Fil
     };
 }
 
+pub fn read_dict(dict_file: std.fs.File) bf.BloomFilter {
+    return bf.from_sc(dict_file.reader());
+}
+
 test "approx_word_count" {
     // ugly hard-coding of a test file
     const file = try std.fs.cwd().openFile("dict.txt", .{});

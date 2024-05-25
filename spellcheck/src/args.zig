@@ -16,10 +16,10 @@ const Args = struct {
     program_name: []const u8,
     build_path: ?[]const u8,
     dict_path: ?[]const u8 = "dict.sc",
-    rest: std.ArrayList([]const u8),
+    words: std.ArrayList([]const u8),
 
     pub fn deinit(self: *Args) void {
-        self.rest.deinit();
+        self.words.deinit();
     }
 };
 
@@ -27,7 +27,7 @@ const Args = struct {
 ///
 /// The caller is responsible for calling `args.deinit()`.
 pub fn parse(allocator: std.mem.Allocator) Error!Args {
-    const rest = std.ArrayList([]const u8).init(allocator);
+    const words = std.ArrayList([]const u8).init(allocator);
 
     var it = std.process.args();
 
@@ -35,7 +35,7 @@ pub fn parse(allocator: std.mem.Allocator) Error!Args {
         .program_name = it.next().?,
         .build_path = null,
         .dict_path = null,
-        .rest = rest,
+        .words = words,
     };
 
     var has_non_flag = false;
@@ -68,7 +68,7 @@ pub fn parse(allocator: std.mem.Allocator) Error!Args {
             // an argument can possibly be multiple arguments
             var arg_it = std.mem.split(u8, arg, " ");
             while (arg_it.next()) |x| {
-                ret.rest.append(x) catch {
+                ret.words.append(x) catch {
                     return Error.AllocFailed;
                 };
             }

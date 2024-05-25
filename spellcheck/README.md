@@ -3,6 +3,11 @@
 1. build the dictionary
 2. run the spell check
 
+```sh
+$ spellcheck [-build <dict.txt>] [-dict <dict.sc>] <words> ...
+$ cat <file> | spellcheck [-build <dict.txt>] [-dict <dict.sc>]
+```
+
 ## compiling
 
 ```sh
@@ -46,7 +51,7 @@ $ spellcheck "hi hello" word concurrency coding challenges tpyo up
 >   tpyo
 ```
 
-It accepts piped input.
+It accepts piped input, if no `words` are passed to it.
 
 ```sh
 $ cat file.txt | spellcheck
