@@ -1,13 +1,14 @@
 const std = @import("std");
 const files = @import("./files.zig");
 
+const IDENTIFIER = "CCBF";
 const VERSION = "01";
 
 pub const Error = error{
     AllocFailed,
     HashFailed,
     WordIsTooLong,
-    Unreachable,
+    InvalidFormat,
 };
 
 /// BloomFilter is an implementation of a standard bloom filter.
@@ -74,9 +75,7 @@ pub const BloomFilter = struct {
 
     fn bit_set_to_bytes(self: *BloomFilter, bytes: *std.ArrayList(u8)) Error!void {
         // The actual bytes of the bitset.
-        const num_bytes = std.math.divCeil(u64, self.m, 8) catch {
-            return Error.Unreachable;
-        };
+        const num_bytes = std.math.divCeil(u64, self.m, 8) catch unreachable;
         var byte_index: usize = 0;
         while (byte_index < num_bytes) : (byte_index += 1) {
             var byte: u8 = 0;
@@ -110,7 +109,7 @@ pub const BloomFilter = struct {
         defer bytes.deinit();
 
         // The first four bytes will be an identifier, we’ll use CCBF.
-        bytes.appendSlice("CCBF") catch {
+        bytes.appendSlice(IDENTIFIER) catch {
             return Error.AllocFailed;
         };
         // The next two bytes will be a version number to describe the version number of the file.
@@ -187,9 +186,77 @@ pub fn from_reader(allocator: std.mem.Allocator, approx_word_count: u64, reader:
     return bloom_filter;
 }
 
-pub fn from_sc(_: anytype) BloomFilter {
-    // TODO: reverse the implementation of BloomFilter.to_bytes()
-    unreachable;
+pub fn from_sc(allocator: std.mem.Allocator, reader: anytype) Error!BloomFilter {
+    var buf = [_]u8{0} ** 4;
+    const buf_2 = buf[0..2];
+    const buf_4 = buf[0..4];
+
+    // The first four bytes will be an identifier, we’ll use CCBF.
+    const identifier_size = reader.readAll(buf_4) catch {
+        return Error.InvalidFormat;
+    };
+    if (identifier_size != 4) {
+        return Error.InvalidFormat;
+    }
+    if (!std.mem.eql(u8, buf_4, IDENTIFIER)) {
+        return Error.InvalidFormat;
+    }
+    // The next two bytes will be a version number to describe the version number of the file.
+    const version_size = reader.readAll(buf_2) catch {
+        return Error.InvalidFormat;
+    };
+    if (version_size != 2) {
+        return Error.InvalidFormat;
+    }
+    if (!std.mem.eql(u8, buf_2, VERSION)) {
+        return Error.InvalidFormat;
+    }
+    // The next two bytes will be the number of hash functions used.
+    const k_size = reader.readAll(buf_2) catch {
+        return Error.InvalidFormat;
+    };
+    if (k_size != 2) {
+        return Error.InvalidFormat;
+    }
+    const k = std.mem.readInt(u16, buf_2, std.builtin.Endian.big);
+    // The next four bytes will be the number of bits used for the filter.
+    const m_size = reader.readAll(buf_4) catch {
+        return Error.InvalidFormat;
+    };
+    if (m_size != 4) {
+        return Error.InvalidFormat;
+    }
+    const m = std.mem.readInt(u32, buf_4, std.builtin.Endian.big);
+
+    var bloom_filter = try BloomFilter.init(allocator, m, k);
+
+    // The actual bytes of the bitset.
+    const num_bytes = std.math.divCeil(u64, m, 8) catch unreachable;
+    // std.debug.print("num_bytes={}\n", .{num_bytes});
+
+    for (0..num_bytes) |byte_index| {
+        const byte = reader.readByte() catch {
+            // std.debug.print("ERR={}\n", .{err});
+            return Error.InvalidFormat;
+        };
+
+        // std.debug.print("byte {}={b}\n", .{ byte_index, byte });
+
+        inline for (0..8) |bit_index| {
+            const bit_set_pos = byte_index * 8 + bit_index;
+            if (bit_set_pos >= m) {
+                break;
+            }
+
+            // std.debug.print("bit {}={b}\n", .{ bit_index, byte & (@as(u8, 1) << bit_index) });
+
+            if ((byte & (@as(u8, 1) << bit_index)) > 0) {
+                bloom_filter.bit_set.set(bit_set_pos);
+            }
+        }
+    }
+
+    return bloom_filter;
 }
 
 test "hash" {
@@ -255,4 +322,20 @@ test "bloom_filter.bit_set_to_bytes" {
     try std.testing.expectEqual(2, bytes.items.len);
     try std.testing.expectEqual(0b10, bytes.items[1]);
     try std.testing.expectEqual(0b01100101, bytes.items[0]);
+}
+
+test "from_sc" {
+    const data = [_]u8{ 'C', 'C', 'B', 'F', '0', '1', 0, 0x5, 0, 0, 0, 0xa } ++ [2]u8{ 0b01001010, 0x00 };
+    // const data = "CCBF010AA493";
+    var stream = std.io.fixedBufferStream(&data);
+    const reader = stream.reader();
+
+    var bloom_filter = try from_sc(std.testing.allocator, reader);
+    defer bloom_filter.deinit();
+
+    const expected = [10]bool{ false, true, false, true, false, false, true, false, false, false };
+
+    for (expected, 0..10) |is_set, i| {
+        try std.testing.expectEqual(is_set, bloom_filter.bit_set.isSet(i));
+    }
 }

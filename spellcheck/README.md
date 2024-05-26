@@ -44,11 +44,12 @@ It accepts inputs via command line arguments.
 
 ```sh
 # check all arguments
-$ spellcheck "hi hello" word concurrency coding challenges tpyo up
-> Misspelt:
->   coding
->   challenges
->   tpyo
+$ spellcheck "hi hellooo" word concurrency coding challenges tpyo up
+>Misspelt:
+>  hellooo
+>  coding
+>  challenges
+>  tpyo
 ```
 
 It accepts piped input, if no `words` are passed to it.
