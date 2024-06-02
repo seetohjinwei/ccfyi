@@ -26,3 +26,75 @@ def parse(txt: str) -> JSONStruct:
         return result.json_struct
 
     raise InvalidJSONStruct(result)
+
+
+INDENTATION = "  "
+
+
+def _pretty_print_array(array: list["JSONStruct"], indent_level: int) -> str:
+    length = len(array)
+
+    if length == 0:
+        return "[]"
+
+    str_builder: list[str] = []
+
+    for index, struct in enumerate(array):
+        indentation = INDENTATION * (indent_level + 1)
+
+        item: str = indentation + _pretty_print(struct, indent_level+1)
+        if index != length - 1:
+            item += ","
+
+        str_builder.append(item)
+
+    indentation = INDENTATION * indent_level
+    return f"""[
+{'\n'.join(str_builder)}
+{indentation}]"""
+
+
+def _pretty_print_object(object: dict[str, "JSONStruct"], indent_level: int) -> str:
+    length = len(object)
+
+    if length == 0:
+        return "{}"
+
+    str_builder: list[str] = []
+
+    index = 0
+    for key, struct in object.items():
+        item: str = _pretty_print(struct, indent_level+1)
+
+        if index != length - 1:
+            item += ","
+        index += 1
+
+        indentation = INDENTATION * (indent_level + 1)
+        str_builder.append(f'{indentation}"{key}": {item}')
+
+    indentation = INDENTATION * indent_level
+    return f"""{{
+{'\n'.join(str_builder)}
+{indentation}}}"""
+
+
+def _pretty_print(struct: JSONStruct, indent_level: int) -> str:
+    if isinstance(struct, bool):
+        if struct == True:
+            return "true"
+        elif struct == False:
+            return "false"
+    elif struct is None:
+        return "null"
+    elif isinstance(struct, dict):
+        return _pretty_print_object(struct, indent_level)
+    elif isinstance(struct, list):
+        return _pretty_print_array(struct, indent_level)
+    elif isinstance(struct, float) or isinstance(struct, int):
+        return str(struct)
+    elif isinstance(struct, str):
+        return f'"{str(struct)}"'
+
+def pretty_print(struct: JSONStruct) -> str:
+    return _pretty_print(struct, 0)
