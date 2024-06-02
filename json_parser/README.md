@@ -1,13 +1,14 @@
 # JSON Parser
 
-https://codingchallenges.fyi/challenges/challenge-json-parser
+- https://codingchallenges.fyi/challenges/challenge-json-parser
+- https://codingchallenges.fyi/challenges/challenge-jq/
 
 ```sh
 # open the program in $(EDITOR)
 make
 
 # run the program on an input file
-make run input=test_json/full_suite/pass1.json
+./file_parser test_json/full_suite/pass1.json
 
 # run all tests
 make test
