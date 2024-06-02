@@ -42,7 +42,7 @@ def _pretty_print_array(array: list["JSONStruct"], indent_level: int) -> str:
     for index, struct in enumerate(array):
         indentation = INDENTATION * (indent_level + 1)
 
-        item: str = indentation + _pretty_print(struct, indent_level+1)
+        item: str = indentation + _pretty_print(struct, indent_level + 1)
         if index != length - 1:
             item += ","
 
@@ -64,7 +64,7 @@ def _pretty_print_object(object: dict[str, "JSONStruct"], indent_level: int) -> 
 
     index = 0
     for key, struct in object.items():
-        item: str = _pretty_print(struct, indent_level+1)
+        item: str = _pretty_print(struct, indent_level + 1)
 
         if index != length - 1:
             item += ","
@@ -81,9 +81,9 @@ def _pretty_print_object(object: dict[str, "JSONStruct"], indent_level: int) -> 
 
 def _pretty_print(struct: JSONStruct, indent_level: int) -> str:
     if isinstance(struct, bool):
-        if struct == True:
+        if struct is True:
             return "true"
-        elif struct == False:
+        elif struct is False:
             return "false"
     elif struct is None:
         return "null"
@@ -95,6 +95,7 @@ def _pretty_print(struct: JSONStruct, indent_level: int) -> str:
         return str(struct)
     elif isinstance(struct, str):
         return f'"{str(struct)}"'
+
 
 def pretty_print(struct: JSONStruct) -> str:
     return _pretty_print(struct, 0)

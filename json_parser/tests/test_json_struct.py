@@ -10,13 +10,13 @@ def get_test_case(path: str) -> str:
         return f.read().strip()
 
 
-I = TypeVar("I")
+V = TypeVar("V")
 E = TypeVar("E")
 
 
 @dataclass
-class TestCase(Generic[I, E]):
-    input: I
+class TestCase(Generic[V, E]):
+    input: V
     expected: E
     name: Optional[str] = None
 
@@ -211,9 +211,7 @@ class TestJSONStruct_pretty_print(unittest.TestCase):
 
         for tc in test_cases:
             actual = pretty_print(tc.input)
-            self.assertEqual(
-                tc.expected, actual
-            )
+            self.assertEqual(tc.expected, actual)
 
     def test_none(self):
         test_cases: list[TestCase[JSONStruct, str]] = [
@@ -225,9 +223,7 @@ class TestJSONStruct_pretty_print(unittest.TestCase):
 
         for tc in test_cases:
             actual = pretty_print(tc.input)
-            self.assertEqual(
-                tc.expected, actual
-            )
+            self.assertEqual(tc.expected, actual)
 
     def test_float(self):
         test_cases: list[TestCase[JSONStruct, str]] = [
@@ -243,9 +239,7 @@ class TestJSONStruct_pretty_print(unittest.TestCase):
 
         for tc in test_cases:
             actual = pretty_print(tc.input)
-            self.assertEqual(
-                tc.expected, actual
-            )
+            self.assertEqual(tc.expected, actual)
 
     def test_str(self):
         test_cases: list[TestCase[JSONStruct, str]] = [
@@ -261,9 +255,7 @@ class TestJSONStruct_pretty_print(unittest.TestCase):
 
         for tc in test_cases:
             actual = pretty_print(tc.input)
-            self.assertEqual(
-                tc.expected, actual
-            )
+            self.assertEqual(tc.expected, actual)
 
     def test_array(self):
         test_cases: list[TestCase[JSONStruct, str]] = [
@@ -318,10 +310,7 @@ class TestJSONStruct_pretty_print(unittest.TestCase):
 
         for tc in test_cases:
             actual = pretty_print(tc.input)
-            self.assertEqual(
-                tc.expected, actual
-            )
-
+            self.assertEqual(tc.expected, actual)
 
     def test_dict(self):
         test_cases: list[TestCase[JSONStruct, str]] = [
@@ -344,7 +333,7 @@ class TestJSONStruct_pretty_print(unittest.TestCase):
 }""",
             ),
             TestCase[JSONStruct, str](
-                input={"a": 1, "b": 2, "c": [3,4,5, {"key": "value"}]},
+                input={"a": 1, "b": 2, "c": [3, 4, 5, {"key": "value"}]},
                 expected="""{
   "a": 1,
   "b": 2,

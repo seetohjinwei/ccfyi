@@ -34,3 +34,8 @@ $(VENV)/bin/activate: $(REQUIREMENTS)
 clean:
 	rm -rf __pycache__
 	rm -rf $(VENV)
+
+.PHONY: lint
+lint: $(VENV)/bin/activate
+	ruff check
+	ruff format

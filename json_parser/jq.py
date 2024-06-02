@@ -3,9 +3,11 @@
 from src.json_struct import JSONStruct, parse, pretty_print
 import sys
 
+
 def get_input_contents() -> str:
     # this is guaranteed to read until EOF
     return sys.stdin.read()
+
 
 def main() -> None:
     txt = get_input_contents()
@@ -14,6 +16,7 @@ def main() -> None:
     # TODO: apply functions on struct
     result = pretty_print(struct)
     print(result)
+
 
 if __name__ == "__main__":
     main()

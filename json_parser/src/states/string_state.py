@@ -169,6 +169,7 @@ class _StringEscapeState(State):
             case AttemptResult(action=AttemptResultAction.NO_MATCH):
                 # should fail the entire string
                 from src.json_struct import InvalidJSONStruct
+
                 raise InvalidJSONStruct
 
         return failed_result

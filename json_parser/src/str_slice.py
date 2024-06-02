@@ -49,7 +49,9 @@ class Str:
 
         return True
 
-    def starts_with_any(self, xs: "list[Str | str] | list[Str] | list[str]") -> "Str | None":
+    def starts_with_any(
+        self, xs: "list[Str | str] | list[Str] | list[str]"
+    ) -> "Str | None":
         for s in xs:
             if self.starts_with(s):
                 if isinstance(s, Str):
@@ -81,12 +83,12 @@ class Str:
         return True
 
     def __str__(self) -> str:
-        s = self.s[self.lo:self.hi]
+        s = self.s[self.lo : self.hi]
         return s
 
     def __repr__(self) -> str:
-        s = self.s[self.lo:self.hi]
-        return f"\"{s}\""
+        s = self.s[self.lo : self.hi]
+        return f'"{s}"'
 
 
 class StrIter:
