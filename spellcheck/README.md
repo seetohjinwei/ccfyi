@@ -65,3 +65,11 @@ zig build test
 ```
 
 https://codingchallenges.fyi/challenges/challenge-bloom/
+
+## extensions
+
+- accept files / directories
+    - print the file / line / column information
+    - try parallelism in zig ([std.Thread](https://ziglang.org/documentation/master/std/#std.Thread)?)
+        - doesn't seem to have many other options currently
+    - this should be the only way? to accept input (might want to nuke the current options)
