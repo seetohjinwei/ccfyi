@@ -23,5 +23,3 @@ make test test=tests.test_json_struct.TestJSONStruct_pretty_print
 # run entire test module
 make test test=tests.test_states
 ```
-
-TODO: add linter

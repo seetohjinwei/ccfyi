@@ -1,4 +1,4 @@
-from ..json_struct import JSONStruct
+from src.json_struct.json_struct import JSONStruct
 from ..str_slice import Str
 from .common import (
     AttemptResult,

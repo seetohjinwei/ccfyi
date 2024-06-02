@@ -1,6 +1,6 @@
 #!../venv/bin/python3
 
-from src.json_struct import parse
+from src.json_struct.json_struct import parse
 from dataclasses import dataclass
 import sys
 

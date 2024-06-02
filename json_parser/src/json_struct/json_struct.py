@@ -1,4 +1,4 @@
-from .str_slice import Str
+from ..str_slice import Str
 
 
 # https://www.rfc-editor.org/rfc/rfc8259.html#section-3

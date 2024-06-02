@@ -1,5 +1,10 @@
 from dataclasses import dataclass
-from src.json_struct import InvalidJSONStruct, JSONStruct, parse, pretty_print
+from src.json_struct.json_struct import (
+    InvalidJSONStruct,
+    JSONStruct,
+    parse,
+    pretty_print,
+)
 from typing import Generic, Optional, TypeVar
 import unittest
 import os

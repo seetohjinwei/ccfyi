@@ -1,6 +1,6 @@
 #!../venv/bin/python3
 
-from src.json_struct import JSONStruct, parse, pretty_print
+from src.json_struct.json_struct import JSONStruct, parse, pretty_print
 import sys
 
 
