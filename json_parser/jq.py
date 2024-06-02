@@ -6,7 +6,7 @@ import sys
 
 def get_input_contents() -> str:
     # this is guaranteed to read until EOF
-    return sys.stdin.read()
+    return sys.stdin.read().strip()
 
 
 def main() -> None:

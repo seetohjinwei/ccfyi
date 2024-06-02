@@ -170,6 +170,15 @@ class TestJSONStruct(unittest.TestCase):
             result, tc.expected, f"expected {tc.expected}, but got {result}"
         )
 
+    def test_valid_json_others_1(self):
+        # from `curl -sL 'https://api.github.com/repos/CodingChallegesFYI/SharedSolutions/commits?per_page=3'`
+
+        txt = get_test_case("others/valid1.json")
+        try:
+            parse(txt)
+        except InvalidJSONStruct:
+            self.fail("expected to parse without exception")
+
     def test_full_suite(self):
         # from http://www.json.org/JSON_checker/test.zip
         # modified cases: fail18 -> pass18

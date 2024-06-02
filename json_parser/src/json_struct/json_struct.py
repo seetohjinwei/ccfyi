@@ -94,7 +94,11 @@ def _pretty_print(struct: JSONStruct, indent_level: int) -> str:
     elif isinstance(struct, float) or isinstance(struct, int):
         return str(struct)
     elif isinstance(struct, str):
-        return f'"{str(struct)}"'
+        repr_ = repr(struct)
+        if repr_[0] == "'":
+            # swap '' -> ""
+            return f'"{repr_[1:-1]}"'
+        return repr_
 
 
 def pretty_print(struct: JSONStruct) -> str:

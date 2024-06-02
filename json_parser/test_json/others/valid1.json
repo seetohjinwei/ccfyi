@@ -1,0 +1,239 @@
+[
+    {
+      "sha": "26458d07d4a7e524c2373eed938692a9f971acd1",
+      "node_id": "C_kwDOKUpeI9oAKDI2NDU4ZDA3ZDRhN2U1MjRjMjM3M2VlZDkzODY5MmE5Zjk3MWFjZDE",
+      "commit": {
+        "author": {
+          "name": "sanvuqui",
+          "email": "41535612+santheipman@users.noreply.github.com",
+          "date": "2024-04-27T12:50:10Z"
+        },
+        "committer": {
+          "name": "GitHub",
+          "email": "noreply@github.com",
+          "date": "2024-04-27T12:50:10Z"
+        },
+        "message": "Add solution for xxd challenge written in Golang (#300)\n\nCo-authored-by: John Crickett <3667898+JohnCrickett@users.noreply.github.com>",
+        "tree": {
+          "sha": "b7cc99a50a1724f106753509dc1ae96b9e38f65b",
+          "url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/git/trees/b7cc99a50a1724f106753509dc1ae96b9e38f65b"
+        },
+        "url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/git/commits/26458d07d4a7e524c2373eed938692a9f971acd1",
+        "comment_count": 0,
+        "verification": {
+          "verified": true,
+          "reason": "valid",
+          "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJmLPSCCRC1aQ7uu5UhlAAAmR0QAKXybIaAgSMAMINm42YmRQuB\nCJcoBKVC05b9efRcl/Xu8XgeWh6pJjomsN+Az5/hxpJLHLyw+NGIfR3T2g+ysKY2\ndACIeL5rNjhRDy3AikjgX1D3vRa+RWwBCZk5laJKQNd69QMWCcw9VlOUoGWgDf0x\n83WlN2FBI9cuJgrBv85nl4/dEXlaHt5ue6wZxnggQGb/U/1LhlDrlcS8FYrMOgsb\n4MRfJUNW4znAkd9EFjlpK+50WmB6ttglzR5oHXPvn5ziAcHHTNjqq84kGT1VHZPg\nRfgFq5RMRiluKHqTRoFZO+a1kPtgh8g3SRPaP+VsNGADOvZZcMK2HABxeXHUlFOg\nqK+5IOAY8MzQMDw+LfodqubWbK4gLYTyH4jLihDpM0jEHx15ephnzj//z1dsI/+v\nV3UcR7c/+TteVdaydzApib+WB2/GoTOujD4KQafdmYFUe7WGJT9ZK29FexFduqNr\nXGooPkAdD93+JAUq4cD7vy/Mz109VAKIFRrJJX8lmiJwjwDeqE1jJdiEIYHMU9o3\nBvD5V0OHYH9kWDXpwDJEj2/v/3aIhs1oDLZE1c2Wd7Tqa0xEYgaVGguVdWYWgMUd\nY7EyJiD+Bajg2Rzg7moBen6P53btCm+Z7YK6GZ8p8oV+brGLs9xCa28dAMEaID3g\n5JSff7usppOis/RJTf6C\n=TG7J\n-----END PGP SIGNATURE-----\n",
+          "payload": "tree b7cc99a50a1724f106753509dc1ae96b9e38f65b\nparent 5096b1eefbcdc864d94bd99511f7c04708fe59b4\nauthor sanvuqui <41535612+santheipman@users.noreply.github.com> 1714222210 +0700\ncommitter GitHub <noreply@github.com> 1714222210 +0100\n\nAdd solution for xxd challenge written in Golang (#300)\n\nCo-authored-by: John Crickett <3667898+JohnCrickett@users.noreply.github.com>"
+        }
+      },
+      "url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/commits/26458d07d4a7e524c2373eed938692a9f971acd1",
+      "html_url": "https://github.com/CodingChallengesFYI/SharedSolutions/commit/26458d07d4a7e524c2373eed938692a9f971acd1",
+      "comments_url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/commits/26458d07d4a7e524c2373eed938692a9f971acd1/comments",
+      "author": {
+        "login": "santheipman",
+        "id": 41535612,
+        "node_id": "MDQ6VXNlcjQxNTM1NjEy",
+        "avatar_url": "https://avatars.githubusercontent.com/u/41535612?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/santheipman",
+        "html_url": "https://github.com/santheipman",
+        "followers_url": "https://api.github.com/users/santheipman/followers",
+        "following_url": "https://api.github.com/users/santheipman/following{/other_user}",
+        "gists_url": "https://api.github.com/users/santheipman/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/santheipman/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/santheipman/subscriptions",
+        "organizations_url": "https://api.github.com/users/santheipman/orgs",
+        "repos_url": "https://api.github.com/users/santheipman/repos",
+        "events_url": "https://api.github.com/users/santheipman/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/santheipman/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "committer": {
+        "login": "web-flow",
+        "id": 19864447,
+        "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+        "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/web-flow",
+        "html_url": "https://github.com/web-flow",
+        "followers_url": "https://api.github.com/users/web-flow/followers",
+        "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+        "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+        "organizations_url": "https://api.github.com/users/web-flow/orgs",
+        "repos_url": "https://api.github.com/users/web-flow/repos",
+        "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/web-flow/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "parents": [
+        {
+          "sha": "5096b1eefbcdc864d94bd99511f7c04708fe59b4",
+          "url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/commits/5096b1eefbcdc864d94bd99511f7c04708fe59b4",
+          "html_url": "https://github.com/CodingChallengesFYI/SharedSolutions/commit/5096b1eefbcdc864d94bd99511f7c04708fe59b4"
+        }
+      ]
+    },
+    {
+      "sha": "5096b1eefbcdc864d94bd99511f7c04708fe59b4",
+      "node_id": "C_kwDOKUpeI9oAKDUwOTZiMWVlZmJjZGM4NjRkOTRiZDk5NTExZjdjMDQ3MDhmZTU5YjQ",
+      "commit": {
+        "author": {
+          "name": "KPacarizi",
+          "email": "kujtesar_paqarizi@hotmail.com",
+          "date": "2024-04-27T12:48:46Z"
+        },
+        "committer": {
+          "name": "GitHub",
+          "email": "noreply@github.com",
+          "date": "2024-04-27T12:48:46Z"
+        },
+        "message": "Update README.md (#299)",
+        "tree": {
+          "sha": "b870b2f802426d21f89bb022164f31099783325e",
+          "url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/git/trees/b870b2f802426d21f89bb022164f31099783325e"
+        },
+        "url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/git/commits/5096b1eefbcdc864d94bd99511f7c04708fe59b4",
+        "comment_count": 0,
+        "verification": {
+          "verified": true,
+          "reason": "valid",
+          "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJmLPQuCRC1aQ7uu5UhlAAAeqgQAD+6xVbO+WoXRTTcppcZqki6\nMoeyA2FgV+oJTJd07AfidOtN3dKbzjI5Pzsa53bRmMDeo2XvIQni+4b06K8zgipy\nFyfurT7GUQcj/zuxbLZaEK5OHMzvVhtbMx6e1BXIuUrfMS0dMb1TgUd6//esumHi\nvXaD81HmtD3yfZEeytUPKNlSRPvbiluVUalLmY8g2B/trLIERu6sqv6DY3kx9pMd\nuIwADZl32s/nqpWeCsld8AjAYup5dNJttzzNdO33i8HDEeUIRhn1JeZ5epVjG+0I\n0ha+3u/rNXcuZV2XeL2ixD6pWffeF94XxR+XNeMIqAy9OjIEVvEEiK2t2IFW2ivN\nhOitXOy77wsb2YI1aEwYhgsMj0w0UtCbq8RWrfpAC1JKtTTSOkWW1b/VLMBDmkCz\n9DyNsh6DbYuhG7vL38lps2lzY1zcKlzk5VRZ3wt78QdzQsPgePscQX0RgSLKpwOv\nK4GSnYXycdPzKV+UCp8+6LBJQbJLSClEDAERCv5/WlxN/1TWKnNNIrBHMg7Srf8x\nXozgQ1NxhG1ddEi6WAvyaAZstqsSzBQYdkRiadWUabC55+3W8SUvzUogQXaiVjvG\n0w1bV+7sWnkt11N94rU9mvyJ1hdQ3L/yYVBxycDlV4V9Fnc3tjNvqcUH+/rN7XMj\nAVNh2JJy5CdvHmpF4tdw\n=N3gD\n-----END PGP SIGNATURE-----\n",
+          "payload": "tree b870b2f802426d21f89bb022164f31099783325e\nparent f43a58d5d0208211e0ae8600bec0fec9842cb919\nauthor KPacarizi <kujtesar_paqarizi@hotmail.com> 1714222126 +0200\ncommitter GitHub <noreply@github.com> 1714222126 +0100\n\nUpdate README.md (#299)\n\n"
+        }
+      },
+      "url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/commits/5096b1eefbcdc864d94bd99511f7c04708fe59b4",
+      "html_url": "https://github.com/CodingChallengesFYI/SharedSolutions/commit/5096b1eefbcdc864d94bd99511f7c04708fe59b4",
+      "comments_url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/commits/5096b1eefbcdc864d94bd99511f7c04708fe59b4/comments",
+      "author": {
+        "login": "KPaccarizi",
+        "id": 26025929,
+        "node_id": "MDQ6VXNlcjI2MDI1OTI5",
+        "avatar_url": "https://avatars.githubusercontent.com/u/26025929?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/KPaccarizi",
+        "html_url": "https://github.com/KPaccarizi",
+        "followers_url": "https://api.github.com/users/KPaccarizi/followers",
+        "following_url": "https://api.github.com/users/KPaccarizi/following{/other_user}",
+        "gists_url": "https://api.github.com/users/KPaccarizi/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/KPaccarizi/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/KPaccarizi/subscriptions",
+        "organizations_url": "https://api.github.com/users/KPaccarizi/orgs",
+        "repos_url": "https://api.github.com/users/KPaccarizi/repos",
+        "events_url": "https://api.github.com/users/KPaccarizi/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/KPaccarizi/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "committer": {
+        "login": "web-flow",
+        "id": 19864447,
+        "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+        "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/web-flow",
+        "html_url": "https://github.com/web-flow",
+        "followers_url": "https://api.github.com/users/web-flow/followers",
+        "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+        "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+        "organizations_url": "https://api.github.com/users/web-flow/orgs",
+        "repos_url": "https://api.github.com/users/web-flow/repos",
+        "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/web-flow/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "parents": [
+        {
+          "sha": "f43a58d5d0208211e0ae8600bec0fec9842cb919",
+          "url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/commits/f43a58d5d0208211e0ae8600bec0fec9842cb919",
+          "html_url": "https://github.com/CodingChallengesFYI/SharedSolutions/commit/f43a58d5d0208211e0ae8600bec0fec9842cb919"
+        }
+      ]
+    },
+    {
+      "sha": "f43a58d5d0208211e0ae8600bec0fec9842cb919",
+      "node_id": "C_kwDOKUpeI9oAKGY0M2E1OGQ1ZDAyMDgyMTFlMGFlODYwMGJlYzBmZWM5ODQyY2I5MTk",
+      "commit": {
+        "author": {
+          "name": "KPacarizi",
+          "email": "kujtesar_paqarizi@hotmail.com",
+          "date": "2024-04-27T12:48:29Z"
+        },
+        "committer": {
+          "name": "GitHub",
+          "email": "noreply@github.com",
+          "date": "2024-04-27T12:48:29Z"
+        },
+        "message": "Update challenge-snake.md (#298)",
+        "tree": {
+          "sha": "f461f7c8f3695946c250ad42743e7eaadd47cf7a",
+          "url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/git/trees/f461f7c8f3695946c250ad42743e7eaadd47cf7a"
+        },
+        "url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/git/commits/f43a58d5d0208211e0ae8600bec0fec9842cb919",
+        "comment_count": 0,
+        "verification": {
+          "verified": true,
+          "reason": "valid",
+          "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJmLPQdCRC1aQ7uu5UhlAAAm1kQAE7GxL7W6or4/asfH9vuUKF2\nFJZtHktzXH2j0rbFv74UngNCUoptQ7AFK9e/SoPuRNgZniZUBxACsOKax0XWUd6d\nt6TmfrUMyKdvfjSddNaeeLzz6F45ftdGpGkttyTbx7cPtXsZrH2Bm8yly5ytnqaz\nftHIpHqbZzkXiAJP9ZylmDtUDIz9jVtxmMuFZRCH+OUOvSsXkFe9bnv2igF98ZYu\nIy2ne1gUc93CFjy/O6SWr6KOvKprtpRzU1RwhPs0ammEGeQXUQIS/dycJXk9zO6N\nrokxCgXrTeQUs7E5tQCgg8hswr4LMyk5pEF0O7Jqcv2hFG9Ofk8rj7DWPPKBwUZP\n8OFUVkZvrVpGa16t2G1+TWUJB/2PSN5g3EjXNUdtvuWhqrPP9ipUr/hfHk5FBiIG\nxT+Zfsy6PSYyDe2h7hFONYCfZzM1B546pfVr18VPdOiVox54N7DXGpjZtpzueh1S\nBeYleIcRJhlYJltmelQZ5zheb0Xmh60fb/F+O6loBlLu2AKDOLYPSeP6t0ldrQx2\nbIOh9hEYA2u/DSDY5P3n21ACV/zWcCMv1tKU2lIaov04+FTPV4jYqhivdkLv4ZaB\nBjC/F6Q1WF/uXSNgb7+UM9K8vRpqEtlRE2O7mhrJrNBJlBW3i6Zyhia/Op/KfrGR\nsG6YMS4jEV7yJyuLHRf2\n=EUet\n-----END PGP SIGNATURE-----\n",
+          "payload": "tree f461f7c8f3695946c250ad42743e7eaadd47cf7a\nparent 087dc37acdf4cced8f2a09e90b2940eff1c8a873\nauthor KPacarizi <kujtesar_paqarizi@hotmail.com> 1714222109 +0200\ncommitter GitHub <noreply@github.com> 1714222109 +0100\n\nUpdate challenge-snake.md (#298)\n\n"
+        }
+      },
+      "url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/commits/f43a58d5d0208211e0ae8600bec0fec9842cb919",
+      "html_url": "https://github.com/CodingChallengesFYI/SharedSolutions/commit/f43a58d5d0208211e0ae8600bec0fec9842cb919",
+      "comments_url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/commits/f43a58d5d0208211e0ae8600bec0fec9842cb919/comments",
+      "author": {
+        "login": "KPaccarizi",
+        "id": 26025929,
+        "node_id": "MDQ6VXNlcjI2MDI1OTI5",
+        "avatar_url": "https://avatars.githubusercontent.com/u/26025929?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/KPaccarizi",
+        "html_url": "https://github.com/KPaccarizi",
+        "followers_url": "https://api.github.com/users/KPaccarizi/followers",
+        "following_url": "https://api.github.com/users/KPaccarizi/following{/other_user}",
+        "gists_url": "https://api.github.com/users/KPaccarizi/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/KPaccarizi/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/KPaccarizi/subscriptions",
+        "organizations_url": "https://api.github.com/users/KPaccarizi/orgs",
+        "repos_url": "https://api.github.com/users/KPaccarizi/repos",
+        "events_url": "https://api.github.com/users/KPaccarizi/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/KPaccarizi/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "committer": {
+        "login": "web-flow",
+        "id": 19864447,
+        "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+        "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/web-flow",
+        "html_url": "https://github.com/web-flow",
+        "followers_url": "https://api.github.com/users/web-flow/followers",
+        "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+        "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+        "organizations_url": "https://api.github.com/users/web-flow/orgs",
+        "repos_url": "https://api.github.com/users/web-flow/repos",
+        "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/web-flow/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "parents": [
+        {
+          "sha": "087dc37acdf4cced8f2a09e90b2940eff1c8a873",
+          "url": "https://api.github.com/repos/CodingChallengesFYI/SharedSolutions/commits/087dc37acdf4cced8f2a09e90b2940eff1c8a873",
+          "html_url": "https://github.com/CodingChallengesFYI/SharedSolutions/commit/087dc37acdf4cced8f2a09e90b2940eff1c8a873"
+        }
+      ]
+    }
+  ]
