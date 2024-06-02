@@ -23,6 +23,9 @@ class IdentityFilter(Filter):
         return True
 
 
+# TODO: a bunch of other filters
+
+
 def get_filters(argument: str) -> list[Filter]:
     if argument == "" or argument == ".":
         return [IdentityFilter()]
