@@ -13,6 +13,8 @@ make
 # run identify function (".") using jq
 curl -s 'https://dummyjson.com/quotes?limit=2' | ./jq.py .
 
+curl -sL 'https://api.github.com/repos/CodingChallegesFYI/SharedSolutions/commits?per_page=3' | ./jq.py '.[0]'
+
 # run all tests
 make test
 # run specific test function

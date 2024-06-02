@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from src.json_struct.filters import Filter, IdentityFilter, apply_filters, get_filters
 from src.json_struct.json_struct import (
     InvalidJSONStruct,
     JSONStruct,
@@ -356,4 +357,32 @@ class TestJSONStruct_pretty_print(unittest.TestCase):
 
         for tc in test_cases:
             actual = pretty_print(tc.input)
+            self.assertEqual(tc.expected, actual)
+
+
+class TestJSONStruct_get_filters(unittest.TestCase):
+    def test_filters(self):
+        test_cases: list[TestCase[str, list[Filter]]] = [
+            TestCase(
+                input=".",
+                expected=[IdentityFilter()],
+            ),
+        ]
+
+        for tc in test_cases:
+            actual = get_filters(tc.input)
+            self.assertEqual(tc.expected, actual)
+
+
+class TestJSONStruct_apply_filters(unittest.TestCase):
+    def test_filters(self):
+        test_cases: list[TestCase[tuple[JSONStruct, list[Filter]], JSONStruct]] = [
+            TestCase(
+                input=({}, [IdentityFilter()]),
+                expected={},
+            ),
+        ]
+
+        for tc in test_cases:
+            actual = apply_filters(tc.input[0], tc.input[1])
             self.assertEqual(tc.expected, actual)

@@ -20,4 +20,4 @@ class State(ABC):
         If no next state is possible, None is returned.
         """
 
-        pass
+        ...
