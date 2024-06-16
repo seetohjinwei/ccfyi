@@ -10,8 +10,9 @@ make
 # run the program on an input file
 ./file_parser.py test_json/full_suite/pass1.json
 
-# run identify function (".") using jq
 curl -s 'https://dummyjson.com/quotes?limit=2' | ./jq.py .
+curl -s 'https://dummyjson.com/quotes?limit=2' | ./jq.py '.quotes'
+curl -s 'https://dummyjson.com/quotes?limit=2' | ./jq.py '.quotes[].id'
 
 curl -sL 'https://api.github.com/repos/CodingChallegesFYI/SharedSolutions/commits?per_page=3' | ./jq.py '.[0]'
 

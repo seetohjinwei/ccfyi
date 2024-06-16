@@ -4,6 +4,7 @@ from src.json_struct.filters import (
     Filter,
     IdentityFilter,
     InvalidFilterApplication,
+    ObjectIdentifierFilter,
     apply_filters,
     get_filters,
 )
@@ -391,6 +392,30 @@ class TestJSONStruct_get_filters(unittest.TestCase):
                 input=".[1000]",
                 expected=[ArrayIndexFilter(1000)],
             ),
+            TestCase(
+                input=".name",
+                expected=[ObjectIdentifierFilter("name", False)],
+            ),
+            TestCase(
+                input='.["name"]',
+                expected=[ObjectIdentifierFilter("name", False)],
+            ),
+            TestCase(
+                input=".name?",
+                expected=[ObjectIdentifierFilter("name", True)],
+            ),
+            TestCase(
+                input='.["name"]?',
+                expected=[ObjectIdentifierFilter("name", True)],
+            ),
+            TestCase(
+                input=".name.[0]",
+                expected=[ObjectIdentifierFilter("name", False), ArrayIndexFilter(0)],
+            ),
+            TestCase(
+                input=".[0].name",
+                expected=[ArrayIndexFilter(0), ObjectIdentifierFilter("name", False)],
+            ),
         ]
 
         for tc in test_cases:
@@ -409,6 +434,32 @@ class TestJSONStruct_apply_filters(unittest.TestCase):
                 input=([1], [ArrayIndexFilter(0)]),
                 expected=1,
             ),
+            TestCase(
+                input=({}, [ObjectIdentifierFilter("name", False)]),
+                expected=None,
+            ),
+            TestCase(
+                input=({"name": "jw"}, [ObjectIdentifierFilter("name", False)]),
+                expected="jw",
+            ),
+            TestCase(
+                input=([], [ObjectIdentifierFilter("name", True)]),
+                expected=None,
+            ),
+            TestCase(
+                input=(
+                    {"names": ["bod", "jw"]},
+                    [ObjectIdentifierFilter("names", False), ArrayIndexFilter(1)],
+                ),
+                expected="jw",
+            ),
+            TestCase(
+                input=(
+                    ["idk", {"name": "jw"}],
+                    [ArrayIndexFilter(1), ObjectIdentifierFilter("name", False)],
+                ),
+                expected="jw",
+            ),
         ]
 
         for tc in test_cases:
@@ -419,6 +470,7 @@ class TestJSONStruct_apply_filters(unittest.TestCase):
         test_cases: list[tuple[JSONStruct, list[Filter]]] = [
             ({}, [ArrayIndexFilter(0)]),
             ([1, 2, 3], [ArrayIndexFilter(10)]),
+            ([], [ObjectIdentifierFilter("name", False)]),
         ]
 
         for tc in test_cases:
