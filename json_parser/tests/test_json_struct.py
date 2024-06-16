@@ -1,5 +1,12 @@
 from dataclasses import dataclass
-from src.json_struct.filters import Filter, IdentityFilter, apply_filters, get_filters
+from src.json_struct.filters import (
+    ArrayIndexFilter,
+    Filter,
+    IdentityFilter,
+    InvalidFilterApplication,
+    apply_filters,
+    get_filters,
+)
 from src.json_struct.json_struct import (
     InvalidJSONStruct,
     JSONStruct,
@@ -376,6 +383,14 @@ class TestJSONStruct_get_filters(unittest.TestCase):
                 input=".",
                 expected=[IdentityFilter()],
             ),
+            TestCase(
+                input=".[0]",
+                expected=[ArrayIndexFilter(0)],
+            ),
+            TestCase(
+                input=".[1000]",
+                expected=[ArrayIndexFilter(1000)],
+            ),
         ]
 
         for tc in test_cases:
@@ -390,8 +405,23 @@ class TestJSONStruct_apply_filters(unittest.TestCase):
                 input=({}, [IdentityFilter()]),
                 expected={},
             ),
+            TestCase(
+                input=([1], [ArrayIndexFilter(0)]),
+                expected=1,
+            ),
         ]
 
         for tc in test_cases:
             actual = apply_filters(tc.input[0], tc.input[1])
             self.assertEqual(tc.expected, actual)
+
+    def test_exceptions(self):
+        test_cases: list[tuple[JSONStruct, list[Filter]]] = [
+            ({}, [ArrayIndexFilter(0)]),
+            ([1, 2, 3], [ArrayIndexFilter(10)]),
+        ]
+
+        for tc in test_cases:
+            self.assertRaises(
+                InvalidFilterApplication, lambda: apply_filters(tc[0], tc[1])
+            )
