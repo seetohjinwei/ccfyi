@@ -15,6 +15,7 @@ curl -s 'https://dummyjson.com/quotes?limit=2' | ./jq.py '.quotes'
 curl -s 'https://dummyjson.com/quotes?limit=2' | ./jq.py '.quotes[].id'
 
 curl -sL 'https://api.github.com/repos/CodingChallegesFYI/SharedSolutions/commits?per_page=3' | ./jq.py '.[0]'
+curl -sL 'https://api.github.com/repos/CodingChallegesFYI/SharedSolutions/commits?per_page=3' | ccjq '.[0] | .commit.message'
 
 # run all tests
 make test

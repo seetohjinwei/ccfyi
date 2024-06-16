@@ -5,6 +5,7 @@ from src.json_struct.filters import (
     IdentityFilter,
     InvalidFilterApplication,
     ObjectIdentifierFilter,
+    PipeFilter,
     apply_filters,
     get_filters,
 )
@@ -415,6 +416,15 @@ class TestJSONStruct_get_filters(unittest.TestCase):
             TestCase(
                 input=".[0].name",
                 expected=[ArrayIndexFilter(0), ObjectIdentifierFilter("name", False)],
+            ),
+            TestCase(
+                input=".[0] | .commit.message",
+                expected=[
+                    ArrayIndexFilter(0),
+                    PipeFilter(),
+                    ObjectIdentifierFilter("commit", False),
+                    ObjectIdentifierFilter("message", False),
+                ],
             ),
         ]
 

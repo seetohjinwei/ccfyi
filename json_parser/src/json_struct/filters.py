@@ -9,6 +9,10 @@ class InvalidFilterApplication(Exception):
     pass
 
 
+class InvalidFilterArgument(Exception):
+    pass
+
+
 class Filter(ABC):
     @abstractmethod
     def apply(self, struct: JSONStruct) -> JSONStruct: ...
@@ -72,9 +76,21 @@ class ObjectIdentifierFilter(Filter):
         )
 
 
+class PipeFilter(Filter):
+    def apply(self, struct: JSONStruct) -> JSONStruct:
+        return struct
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PipeFilter):
+            return False
+
+        return True
+
+
 array_index_pattern = re.compile(r"^\.\[(\d+)\]")
 object_identifier_pattern_1 = re.compile(r'^\.\["([a-zA-Z]+)"\](\?)?')
 object_identifier_pattern_2 = re.compile(r"^\.([a-zA-Z]+)(\?)?")
+pipe_pattern = re.compile(r"\s+\|\s+")
 
 
 def get_filter(argument: str) -> tuple[Optional[Filter], str]:
@@ -96,7 +112,12 @@ def get_filter(argument: str) -> tuple[Optional[Filter], str]:
         remaining = argument[matched_length:]
         return ObjectIdentifierFilter(identifier, is_optional), remaining
 
-    return None, argument
+    if m := pipe_pattern.match(argument):
+        matched_length = len(m.group(0))
+        remaining = argument[matched_length:]
+        return PipeFilter(), remaining
+
+    raise InvalidFilterArgument()
 
 
 def get_filters(argument: str) -> list[Filter]:
