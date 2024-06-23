@@ -8,9 +8,6 @@ import (
 func main() {
 	logging.Init()
 
-	command, err := commands.Parse()
-	if err != nil {
-		panic(err)
-	}
+	command := commands.Parse()
 	command.Exec()
 }
