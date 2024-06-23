@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 import re
 from typing import Optional
 
@@ -11,6 +12,11 @@ class InvalidFilterApplication(Exception):
 
 class InvalidFilterArgument(Exception):
     pass
+
+
+@dataclass
+class Flags:
+    should_collect_into_array: bool = False
 
 
 class Filter(ABC):
@@ -87,6 +93,7 @@ class PipeFilter(Filter):
         return True
 
 
+array_collect_pattern = re.compile(r"^\[(.+)\]$")
 array_index_pattern = re.compile(r"^\.\[(\d+)\]")
 object_identifier_pattern_1 = re.compile(r'^\.\["([a-zA-Z]+)"\](\?)?')
 object_identifier_pattern_2 = re.compile(r"^\.([a-zA-Z]+)(\?)?")
@@ -120,7 +127,13 @@ def get_filter(argument: str) -> tuple[Optional[Filter], str]:
     raise InvalidFilterArgument()
 
 
-def get_filters(argument: str) -> list[Filter]:
+def get_filters(argument: str) -> tuple[list[Filter], Flags]:
+    flags = Flags()
+
+    if m := array_collect_pattern.match(argument):
+        argument = m.group(1)
+        flags.should_collect_into_array = True
+
     filters: list[Filter] = []
 
     while argument:
@@ -129,11 +142,21 @@ def get_filters(argument: str) -> list[Filter]:
             break
         filters.append(filter_)
 
-    return filters
+    return filters, flags
 
 
-def apply_filters(struct: JSONStruct, filters: list[Filter]) -> JSONStruct:
-    for filter in filters:
-        struct = filter.apply(struct)
+def apply_filters(
+    struct: JSONStruct, filters: list[Filter], flags: Flags
+) -> JSONStruct:
+    for filter_ in filters:
+        struct = filter_.apply(struct)
+
+    if flags.should_collect_into_array:
+        pass
 
     return struct
+
+
+# TODO: this whole array spreading and collecting thing breaks my whole system here :/
+# i dont like it, maybe should think of a more elegant solution
+# using Flags seems like a dirt patch :/

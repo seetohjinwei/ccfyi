@@ -30,6 +30,9 @@ $(VENV)/bin/activate: $(REQUIREMENTS)
 	python3 -m venv $(VENV)
 	$(VENV_ACTIVATE) && $(PIP) install -r $(REQUIREMENTS)
 
+.PHONY: venv
+venv: $(VENV)/bin/activate
+
 .PHONY: clean
 clean:
 	rm -rf __pycache__

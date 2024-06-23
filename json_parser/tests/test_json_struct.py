@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from src.json_struct.filters import (
     ArrayIndexFilter,
     Filter,
+    Flags,
     IdentityFilter,
     InvalidFilterApplication,
     ObjectIdentifierFilter,
@@ -380,51 +381,60 @@ class TestJSONStruct_pretty_print(unittest.TestCase):
 
 class TestJSONStruct_get_filters(unittest.TestCase):
     def test_filters(self):
-        test_cases: list[TestCase[str, list[Filter]]] = [
+        test_cases: list[TestCase[str, tuple[list[Filter], Flags]]] = [
             TestCase(
                 input=".",
-                expected=[IdentityFilter()],
+                expected=([IdentityFilter()], Flags()),
             ),
             TestCase(
                 input=".[0]",
-                expected=[ArrayIndexFilter(0)],
+                expected=([ArrayIndexFilter(0)], Flags()),
             ),
             TestCase(
                 input=".[1000]",
-                expected=[ArrayIndexFilter(1000)],
+                expected=([ArrayIndexFilter(1000)], Flags()),
             ),
             TestCase(
                 input=".name",
-                expected=[ObjectIdentifierFilter("name", False)],
+                expected=([ObjectIdentifierFilter("name", False)], Flags()),
             ),
             TestCase(
                 input='.["name"]',
-                expected=[ObjectIdentifierFilter("name", False)],
+                expected=([ObjectIdentifierFilter("name", False)], Flags()),
             ),
             TestCase(
                 input=".name?",
-                expected=[ObjectIdentifierFilter("name", True)],
+                expected=([ObjectIdentifierFilter("name", True)], Flags()),
             ),
             TestCase(
                 input='.["name"]?',
-                expected=[ObjectIdentifierFilter("name", True)],
+                expected=([ObjectIdentifierFilter("name", True)], Flags()),
             ),
             TestCase(
                 input=".name.[0]",
-                expected=[ObjectIdentifierFilter("name", False), ArrayIndexFilter(0)],
+                expected=(
+                    [ObjectIdentifierFilter("name", False), ArrayIndexFilter(0)],
+                    Flags(),
+                ),
             ),
             TestCase(
                 input=".[0].name",
-                expected=[ArrayIndexFilter(0), ObjectIdentifierFilter("name", False)],
+                expected=(
+                    [ArrayIndexFilter(0), ObjectIdentifierFilter("name", False)],
+                    Flags(),
+                ),
             ),
             TestCase(
                 input=".[0] | .commit.message",
-                expected=[
-                    ArrayIndexFilter(0),
-                    PipeFilter(),
-                    ObjectIdentifierFilter("commit", False),
-                    ObjectIdentifierFilter("message", False),
-                ],
+                expected=(
+                    [
+                        ArrayIndexFilter(0),
+                        PipeFilter(),
+                        ObjectIdentifierFilter("commit", False),
+                        ObjectIdentifierFilter("message", False),
+                    ],
+                    Flags(),
+                ),
             ),
         ]
 
@@ -473,7 +483,7 @@ class TestJSONStruct_apply_filters(unittest.TestCase):
         ]
 
         for tc in test_cases:
-            actual = apply_filters(tc.input[0], tc.input[1])
+            actual = apply_filters(tc.input[0], tc.input[1], Flags())
             self.assertEqual(tc.expected, actual)
 
     def test_exceptions(self):
@@ -485,5 +495,5 @@ class TestJSONStruct_apply_filters(unittest.TestCase):
 
         for tc in test_cases:
             self.assertRaises(
-                InvalidFilterApplication, lambda: apply_filters(tc[0], tc[1])
+                InvalidFilterApplication, lambda: apply_filters(tc[0], tc[1], Flags())
             )

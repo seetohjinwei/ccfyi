@@ -20,8 +20,8 @@ def main() -> None:
     else:
         argument = sys.argv[1]
 
-    filters = get_filters(argument)
-    struct = apply_filters(struct, filters)
+    filters, flags = get_filters(argument)
+    struct = apply_filters(struct, filters, flags)
 
     result = pretty_print(struct)
     print(result)
